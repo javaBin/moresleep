@@ -54,6 +54,16 @@
             <artifactId>logback-classic</artifactId>
             <version>${logback_version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <version>3.4.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+            <version>6.1.0</version>
+        </dependency>
     </dependencies>
     <build>
         <sourceDirectory>${project.basedir}/src</sourceDirectory>
