@@ -3,6 +3,7 @@ package no.java.moresleep
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import org.flywaydb.core.Flyway
+import java.sql.Connection
 import javax.sql.DataSource
 
 object Database {
@@ -22,10 +23,12 @@ object Database {
         ds
     }
 
-    private fun migrateWithFlyway(spesialSetup:((Flyway) -> Unit)?) {
+    fun migrateWithFlyway(spesialSetup:((Flyway) -> Unit)?=null) {
         val flyway:Flyway = Flyway.configure().dataSource(datasource).load()
         spesialSetup?.invoke(flyway)
         flyway.migrate()
     }
+
+    fun connection():Connection = datasource.connection
 
 }

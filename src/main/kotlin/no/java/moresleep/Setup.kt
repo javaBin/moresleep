@@ -17,5 +17,9 @@ object Setup {
 
     fun readValue(setupValue: SetupValue):String = setupvalues[setupValue]?:setupValue.defaultValue
 
+    fun setValue(setupValue: SetupValue,value:String) {
+        setupvalues[setupValue] = value
+    }
+
 
 }

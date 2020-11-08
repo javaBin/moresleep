@@ -1,4 +1,4 @@
-package no.java.no.java.moresleep
+package no.java.moresleep.java.moresleep
 
 import java.io.PrintWriter
 import javax.servlet.http.HttpServlet
@@ -14,4 +14,5 @@ class ApiServlet:HttpServlet() {
 
         }
     }
+
 }

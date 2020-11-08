@@ -1,4 +1,4 @@
-package no.java.no.java.moresleep
+package no.java.moresleep.java.moresleep
 
 import org.eclipse.jetty.server.Server
 import org.eclipse.jetty.servlet.ServletHolder
