@@ -4,6 +4,7 @@ import org.jsonbuddy.JsonObject
 import org.jsonbuddy.pojo.PojoMapper
 import java.sql.Connection
 import java.sql.PreparedStatement
+import java.sql.ResultSet
 import java.util.concurrent.ConcurrentHashMap
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
@@ -11,6 +12,18 @@ import javax.servlet.http.HttpServletResponse
 private class MyDbConnection(val connection: Connection):DbConnection {
     override fun preparedStatement(sql:String,dbcommand:(PreparedStatement)->Unit) {
         connection.prepareStatement(sql).use(dbcommand)
+    }
+
+    override fun <T> allFromQuery(sql: String, dbcommand: (ResultSet) -> T): List<T> {
+        return connection.prepareStatement(sql).use { statement ->
+            statement.executeQuery().use { rs ->
+                val result:MutableList<T> = mutableListOf()
+                while (rs.next()) {
+                    result.add(dbcommand(rs))
+                }
+                result
+            }
+        }
     }
 
     override fun close() {
@@ -51,7 +64,7 @@ object ServiceExecutor {
             response.sendError(reqestError.httpError,reqestError.errormessage)
             return
         }
-        
+
         response.contentType = "application/json"
         response.writer.append(result.asJsonObject().toJson())
     }

@@ -1,5 +1,6 @@
 package no.java.moresleep
 
+import org.assertj.core.api.Assertions
 import org.jsonbuddy.JsonObject
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
@@ -33,7 +34,35 @@ class CreateConferenceIntegrationTest:BaseTestClass() {
 
     @Test
     fun createAndReadConference() {
-        val createPayLoad = JsonObject().put("name","Javazone 2021").put("slug","javazone2019").toJson()
+        val conferenceid = createConference()
+
+        println(conferenceid)
+
+    }
+
+    private fun readConferences(conferenceid:String) {
+        val request = Mockito.mock(HttpServletRequest::class.java)
+
+        Mockito.`when`(request.pathInfo).thenReturn("/conference")
+
+        val response = Mockito.mock(HttpServletResponse::class.java)
+        val writer = StringWriter()
+        val printWriter = PrintWriter(writer)
+        Mockito.`when`(response.writer).thenReturn(printWriter)
+
+
+        ServiceExecutor.doStuff(HttpMethod.GET, request, response) { command, usertype, pathinfo ->
+            command.execute(usertype, pathinfo)
+        }
+
+        val resultObject = JsonObject.parse(writer.toString())
+        Assertions.assertThat(resultObject.toJson()).contains(conferenceid)
+
+
+    }
+
+    private fun createConference(): String? {
+        val createPayLoad = JsonObject().put("name", "Javazone 2021").put("slug", "javazone2021").toJson()
         val request = Mockito.mock(HttpServletRequest::class.java)
 
         Mockito.`when`(request.pathInfo).thenReturn("/conference")
@@ -47,13 +76,13 @@ class CreateConferenceIntegrationTest:BaseTestClass() {
         Mockito.`when`(response.writer).thenReturn(printWriter)
 
 
-        ServiceExecutor.doStuff(HttpMethod.POST,request,response){ command, usertype, pathinfo ->
-                command.execute(usertype, pathinfo)
-            }
+        ServiceExecutor.doStuff(HttpMethod.POST, request, response) { command, usertype, pathinfo ->
+            command.execute(usertype, pathinfo)
+        }
 
         val resultObject = JsonObject.parse(writer.toString())
 
         val conferenceid = resultObject.requiredString("id")
-
+        return conferenceid
     }
 }

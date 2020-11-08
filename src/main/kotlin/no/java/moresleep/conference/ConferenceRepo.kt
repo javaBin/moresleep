@@ -1,6 +1,7 @@
 package no.java.moresleep.conference
 
 import no.java.moresleep.ServiceExecutor
+import no.java.moresleep.requiredString
 import java.util.*
 
 object ConferenceRepo {
@@ -14,4 +15,14 @@ object ConferenceRepo {
         }
         return id
     }
+
+    fun allConferences():List<Conference> =
+        ServiceExecutor.connection().allFromQuery("select * from conference") {
+            Conference(
+                id = it.requiredString("id"),
+                name = it.requiredString("name"),
+                slug = it.requiredString("slug")
+            )
+        }
+
 }
