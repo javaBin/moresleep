@@ -1,9 +1,12 @@
 package no.java.moresleep.conference
 
+import no.java.moresleep.BaseTestClass
 import no.java.moresleep.UserType
 import org.assertj.core.api.Assertions
+import org.junit.jupiter.api.Test
 
-class ConferenceTest {
+class ConferenceTest:BaseTestClass() {
+    @Test
     fun addReadConference() {
         val cnc = CreateNewConference(name = "JavaZone 2021",slug = "javazone2021")
         val conferenceid = cnc.execute(UserType.FULLACCESS,"/conference").id

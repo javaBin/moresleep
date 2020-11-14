@@ -35,9 +35,7 @@ class CreateConferenceIntegrationTest:BaseTestClass() {
     @Test
     fun createAndReadConference() {
         val conferenceid = createConference()
-
-        println(conferenceid)
-
+        readConferences(conferenceid)
     }
 
     private fun readConferences(conferenceid:String) {
@@ -61,7 +59,7 @@ class CreateConferenceIntegrationTest:BaseTestClass() {
 
     }
 
-    private fun createConference(): String? {
+    private fun createConference(): String {
         val createPayLoad = JsonObject().put("name", "Javazone 2021").put("slug", "javazone2021").toJson()
         val request = Mockito.mock(HttpServletRequest::class.java)
 
