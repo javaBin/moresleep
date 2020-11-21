@@ -45,7 +45,7 @@ object ServiceExecutor {
         }
     }) {
         val pathinfo:String = request.pathInfo!!
-        val pathMap = httpMethod.commandFromPathInfo(pathinfo)!!
+        val pathMap = httpMethod.commandFromPathInfo(pathinfo)?:throw BadRequest("Unknown path $pathinfo")
 
         val payload:JsonObject = when (httpMethod) {
             HttpMethod.GET,HttpMethod.DELETE -> JsonObject()

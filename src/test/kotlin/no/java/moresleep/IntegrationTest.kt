@@ -1,7 +1,10 @@
 package no.java.moresleep
 
+import no.java.moresleep.talk.CreateNewSession
+import no.java.moresleep.talk.SessionStatus
 import org.assertj.core.api.Assertions
 import org.jsonbuddy.JsonObject
+import org.jsonbuddy.pojo.JsonGenerator
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import java.io.BufferedReader
@@ -10,10 +13,10 @@ import java.io.StringWriter
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
-class CreateConferenceIntegrationTest:BaseTestClass() {
+class IntegrationTest:BaseTestClass() {
     @Test
     fun errorhandlingCreateConference() {
-        val createPayLoad = JsonObject().put("slug","javazone2019").toJson()
+        val createPayLoad:String = JsonObject().put("slug","javazone2019").toJson()
         val request = Mockito.mock(HttpServletRequest::class.java)
 
         Mockito.`when`(request.pathInfo).thenReturn("/conference")
@@ -39,48 +42,31 @@ class CreateConferenceIntegrationTest:BaseTestClass() {
     }
 
     private fun readConferences(conferenceid:String) {
-        val request = Mockito.mock(HttpServletRequest::class.java)
+        val pathInfo:String = "/conference"
+        val httpMethod:HttpMethod = HttpMethod.GET
 
-        Mockito.`when`(request.pathInfo).thenReturn("/conference")
+        val resultObject = doCommandForTest(pathInfo,httpMethod)
 
-        val response = Mockito.mock(HttpServletResponse::class.java)
-        val writer = StringWriter()
-        val printWriter = PrintWriter(writer)
-        Mockito.`when`(response.writer).thenReturn(printWriter)
-
-
-        ServiceExecutor.doStuff(HttpMethod.GET, request, response) { command, usertype, pathinfo ->
-            command.execute(usertype, pathinfo)
-        }
-
-        val resultObject = JsonObject.parse(writer.toString())
         Assertions.assertThat(resultObject.toJson()).contains(conferenceid)
-
 
     }
 
     private fun createConference(): String {
         val createPayLoad = JsonObject().put("name", "Javazone 2021").put("slug", "javazone2021").toJson()
-        val request = Mockito.mock(HttpServletRequest::class.java)
-
-        Mockito.`when`(request.pathInfo).thenReturn("/conference")
-        val inputReader = BufferedReader(createPayLoad.reader())
-        Mockito.`when`(request.reader).thenReturn(inputReader)
-
-
-        val response = Mockito.mock(HttpServletResponse::class.java)
-        val writer = StringWriter()
-        val printWriter = PrintWriter(writer)
-        Mockito.`when`(response.writer).thenReturn(printWriter)
-
-
-        ServiceExecutor.doStuff(HttpMethod.POST, request, response) { command, usertype, pathinfo ->
-            command.execute(usertype, pathinfo)
-        }
-
-        val resultObject = JsonObject.parse(writer.toString())
+        val resultObject = doCommandForTest("/conference",HttpMethod.POST,createPayLoad)
 
         val conferenceid = resultObject.requiredString("id")
         return conferenceid
+    }
+
+    @Test
+    fun createReadTalk() {
+        val conferenceid = createConference()
+        val createNewSession = CreateNewSession(data= baseDataTestset,postedBy = "anders@java.no",status = SessionStatus.SUBMITTED.name)
+        val createPayload:JsonObject = JsonGenerator.generate(createNewSession) as JsonObject
+        val resultObject = doCommandForTest("/conference/$conferenceid/session",HttpMethod.POST,createPayload.toJson())
+        val talkid = resultObject.requiredString("id")
+
+        
     }
 }

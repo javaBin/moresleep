@@ -1,7 +1,45 @@
 package no.java.moresleep
 
+import no.java.moresleep.talk.DataValue
+import org.jsonbuddy.JsonObject
+import org.jsonbuddy.JsonString
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
+import org.mockito.Mockito
+import java.io.BufferedReader
+import java.io.PrintWriter
+import java.io.StringWriter
+import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse
+
+fun doCommandForTest(pathInfo:String,httpMethod:HttpMethod,createPayload:String?=null):JsonObject {
+    val request = Mockito.mock(HttpServletRequest::class.java)
+
+    Mockito.`when`(request.pathInfo).thenReturn(pathInfo)
+    if (createPayload != null) {
+        val inputReader = BufferedReader(createPayload.reader())
+        Mockito.`when`(request.reader).thenReturn(inputReader)
+    }
+
+    val response = Mockito.mock(HttpServletResponse::class.java)
+    val writer = StringWriter()
+    val printWriter = PrintWriter(writer)
+    Mockito.`when`(response.writer).thenReturn(printWriter)
+
+
+    ServiceExecutor.doStuff(httpMethod, request, response) { command, usertype, pathinfo ->
+        command.execute(usertype, pathinfo)
+    }
+
+    val resultObject = JsonObject.parse(writer.toString())
+    return resultObject
+}
+
+val baseDataTestset:Map<String, DataValue> = mapOf(
+    Pair("title", DataValue(privateData = false,value = JsonString("My cool talk title"))),
+    Pair("abstract", DataValue(privateData = false,value = JsonString("Here is the abstract"))),
+    Pair("outline", DataValue(privateData = true,value = JsonString("This is an outline"))),
+)
 
 abstract class BaseTestClass {
     @BeforeEach
