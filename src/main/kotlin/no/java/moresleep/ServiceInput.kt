@@ -9,19 +9,36 @@ enum class UserType {
     ANONYMOUS,READ_ONLY,FULLACCESS
 }
 
+class PathInfoMapped(val commandClass:KClass<out Command>,val parameters:Map<String,String>)
+
 enum class HttpMethod {
     GET,DELETE,POST,PUT;
 
-    fun commandFromPathInfo(pathinfo: String):KClass<out Command>? {
-        when (this) {
-            POST -> when {
-                pathinfo == "/conference" -> return CreateNewConference::class
-            }
-            GET -> when {
-                pathinfo == "/conference" -> return ReadAllConferences::class
+    fun commandFromPathInfo(pathinfo: String):PathInfoMapped? {
+        val decitionList:List<Pair<String,KClass<out Command>>> = when (this) {
+            POST -> listOf(
+                        Pair("/conference",CreateNewConference::class)
+                )
+
+            GET ->
+                listOf(
+                        Pair("/conference",ReadAllConferences::class)
+                )
+            DELETE -> TODO()
+            PUT -> TODO()
+        }
+        for (decition in decitionList) {
+            val pathmatch = mapFromPath(pathinfo,decition.first)
+            if (pathmatch != null) {
+                return PathInfoMapped(decition.second,pathmatch)
             }
         }
 
+        return null
+    }
+
+    private fun mapFromPath(pathinfo: String,pattern:String):Map<String,String>? {
+        if (pathinfo == pattern) return emptyMap()
         return null
     }
 }

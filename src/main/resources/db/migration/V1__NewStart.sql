@@ -3,3 +3,11 @@ create table conference(
     slug text,
     name text
 );
+
+create table talk(
+    id text,
+    conferenceid text,
+    data text,
+    status text,
+    lastupdated text
+)

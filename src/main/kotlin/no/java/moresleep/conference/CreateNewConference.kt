@@ -8,7 +8,7 @@ import no.java.moresleep.UserType
 class CreateConferenceResult(val id:String):ServiceResult()
 
 class CreateNewConference(val name:String?=null,val slug:String?=null):Command {
-    override fun execute(userType: UserType, pathInfo: String): CreateConferenceResult {
+    override fun execute(userType: UserType, parameters: Map<String, String>): CreateConferenceResult {
         if (name.isNullOrEmpty() || name.trim().isEmpty()) {
             throw BadRequest("Missing required value name")
         }

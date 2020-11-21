@@ -10,8 +10,9 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
 private class MyDbConnection(val connection: Connection):DbConnection {
-    override fun preparedStatement(sql:String,dbcommand:(PreparedStatement)->Unit) {
-        connection.prepareStatement(sql).use(dbcommand)
+
+    override fun <T> preparedStatement(sql: String, dbcommand: (PreparedStatement) -> T): T {
+        return connection.prepareStatement(sql).use(dbcommand)
     }
 
     override fun <T> allFromQuery(sql: String, dbcommand: (ResultSet) -> T): List<T> {
@@ -35,16 +36,16 @@ private class MyDbConnection(val connection: Connection):DbConnection {
 object ServiceExecutor {
     private val connectionsUsed:ConcurrentHashMap<Long,MyDbConnection> = ConcurrentHashMap()
 
-    fun doStuff(httpMethod: HttpMethod,request:HttpServletRequest,response: HttpServletResponse,doExecutor:(Command,UserType,String)->ServiceResult = {
-        command,usertype,pathinfo ->
+    fun doStuff(httpMethod: HttpMethod,request:HttpServletRequest,response: HttpServletResponse,doExecutor:(Command,UserType,Map<String,String>)->ServiceResult = {
+        command,usertype,parameters ->
         createConnection().use {
-            val res = command.execute(usertype, pathinfo)
+            val res = command.execute(usertype, parameters)
             commit()
             res
         }
     }) {
         val pathinfo:String = request.pathInfo!!
-        val commandClassFromPathInfo = httpMethod.commandFromPathInfo(pathinfo)!!
+        val pathMap = httpMethod.commandFromPathInfo(pathinfo)!!
 
         val payload:JsonObject = when (httpMethod) {
             HttpMethod.GET,HttpMethod.DELETE -> JsonObject()
@@ -52,14 +53,14 @@ object ServiceExecutor {
         }
 
         val command:Command = try {
-            PojoMapper.map(payload, commandClassFromPathInfo.java)
+            PojoMapper.map(payload, pathMap.commandClass.java)
         } catch (e:Exception) {
             throw BadRequest("Invalid input")
         }
 
 
         val result:ServiceResult = try {
-            doExecutor(command,UserType.ANONYMOUS,pathinfo)
+            doExecutor(command,UserType.ANONYMOUS,pathMap.parameters)
         } catch (reqestError:RequestError) {
             response.sendError(reqestError.httpError,reqestError.errormessage)
             return
@@ -71,7 +72,7 @@ object ServiceExecutor {
 
     @Synchronized fun createConnection():DbConnection {
         val threadId = Thread.currentThread().id
-        connectionsUsed[threadId]?.let { throw RuntimeException("Transaction error. Connection already open") }
+        connectionsUsed[threadId]?.let { throw MoresleepInternalError("Transaction error. Connection already open") }
         val connection = Database.connection()
         connection.autoCommit = false
         val dbConnection = MyDbConnection(connection)
@@ -79,7 +80,7 @@ object ServiceExecutor {
         return dbConnection
     }
 
-    fun connection():DbConnection = connectionsUsed[Thread.currentThread().id]?:throw RuntimeException("No found connection")
+    fun connection():DbConnection = connectionsUsed[Thread.currentThread().id]?:throw MoresleepInternalError("No found connection")
 
     fun commit() {
         connectionsUsed[Thread.currentThread().id]?.connection?.commit()
@@ -87,7 +88,7 @@ object ServiceExecutor {
 
     fun closeConnection() {
         val threadId = Thread.currentThread().id
-        val dbconnection = connectionsUsed.remove(threadId)?:throw RuntimeException("Transaction Connection not found")
+        val dbconnection = connectionsUsed.remove(threadId)?:throw MoresleepInternalError("Transaction Connection not found")
         dbconnection.connection.rollback()
         dbconnection.connection.close()
     }

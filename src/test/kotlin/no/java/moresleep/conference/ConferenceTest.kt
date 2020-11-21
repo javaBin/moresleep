@@ -9,8 +9,8 @@ class ConferenceTest:BaseTestClass() {
     @Test
     fun addReadConference() {
         val cnc = CreateNewConference(name = "JavaZone 2021",slug = "javazone2021")
-        val conferenceid = cnc.execute(UserType.FULLACCESS,"/conference").id
-        val allConferences:List<Conference> = ReadAllConferences().execute(UserType.FULLACCESS,"/conference").conferences
+        val conferenceid = cnc.execute(UserType.FULLACCESS, emptyMap()).id
+        val allConferences:List<Conference> = ReadAllConferences().execute(UserType.FULLACCESS, emptyMap()).conferences
         Assertions.assertThat(allConferences).hasSize(1)
         Assertions.assertThat(allConferences[0].id).isEqualTo(conferenceid)
         Assertions.assertThat(allConferences[0].name).isEqualTo("JavaZone 2021")
