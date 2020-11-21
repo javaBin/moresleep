@@ -67,6 +67,7 @@ class IntegrationTest:BaseTestClass() {
         val resultObject = doCommandForTest("/conference/$conferenceid/session",HttpMethod.POST,createPayload.toJson())
         val talkid = resultObject.requiredString("id")
 
-        
+        val readTalk:JsonObject = doCommandForTest("/session/$talkid",HttpMethod.GET)
+        Assertions.assertThat(readTalk).isEqualTo(resultObject)
     }
 }

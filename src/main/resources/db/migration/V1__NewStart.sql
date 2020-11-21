@@ -9,5 +9,6 @@ create table talk(
     conferenceid text,
     data text,
     status text,
-    lastupdated text
+    postedby text,
+    lastupdated timestamp
 )

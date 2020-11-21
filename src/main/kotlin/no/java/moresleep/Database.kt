@@ -42,6 +42,10 @@ object Database {
         flyway.migrate()
     }
 
-    fun connection():Connection = datasource.connection
+    fun connection():Connection {
+        val conn = datasource.connection
+        conn.autoCommit = false
+        return conn
+    }
 
 }
