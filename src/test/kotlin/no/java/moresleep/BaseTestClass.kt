@@ -25,20 +25,27 @@ fun doCommandForTest(pathInfo:String,httpMethod:HttpMethod,createPayload:String?
     val writer = StringWriter()
     val printWriter = PrintWriter(writer)
     Mockito.`when`(response.writer).thenReturn(printWriter)
+    Mockito.`when`(response.sendError(Mockito.anyInt(),Mockito.anyString())).thenThrow(RuntimeException("Got http error"))
+
 
 
     ServiceExecutor.doStuff(httpMethod, request, response) { command, usertype, pathinfo ->
         command.execute(usertype, pathinfo)
     }
 
+
     val resultObject = JsonObject.parse(writer.toString())
     return resultObject
 }
 
-val baseDataTestset:Map<String, DataValue> = mapOf(
+val baseTalkDataTestset:Map<String, DataValue> = mapOf(
     Pair("title", DataValue(privateData = false,value = JsonString("My cool talk title"))),
     Pair("abstract", DataValue(privateData = false,value = JsonString("Here is the abstract"))),
     Pair("outline", DataValue(privateData = true,value = JsonString("This is an outline"))),
+)
+
+val baseSpeakerDataTestset:Map<String, DataValue> = mapOf(
+    Pair("bio", DataValue(privateData = false,value = JsonString("This is a cool speaker"))),
 )
 
 abstract class BaseTestClass {

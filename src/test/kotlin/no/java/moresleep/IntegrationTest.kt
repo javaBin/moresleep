@@ -2,14 +2,13 @@ package no.java.moresleep
 
 import no.java.moresleep.talk.CreateNewSession
 import no.java.moresleep.talk.SessionStatus
+import no.java.moresleep.talk.SpeakerUpdate
 import org.assertj.core.api.Assertions
 import org.jsonbuddy.JsonObject
 import org.jsonbuddy.pojo.JsonGenerator
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import java.io.BufferedReader
-import java.io.PrintWriter
-import java.io.StringWriter
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
@@ -62,7 +61,8 @@ class IntegrationTest:BaseTestClass() {
     @Test
     fun createReadTalk() {
         val conferenceid = createConference()
-        val createNewSession = CreateNewSession(data= baseDataTestset,postedBy = "anders@java.no",status = SessionStatus.SUBMITTED.name)
+        val createNewSession = CreateNewSession(data= baseTalkDataTestset,postedBy = "anders@java.no",status = SessionStatus.SUBMITTED.name,
+            speakers = listOf(SpeakerUpdate(name = "Anders Lastname",email = "anders@java.no",data = baseSpeakerDataTestset)))
         val createPayload:JsonObject = JsonGenerator.generate(createNewSession) as JsonObject
         val resultObject = doCommandForTest("/conference/$conferenceid/session",HttpMethod.POST,createPayload.toJson())
         val talkid = resultObject.requiredString("id")

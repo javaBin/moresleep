@@ -16,6 +16,16 @@ fun <T> PreparedStatement.withResultSet(dbcommand: (ResultSet) -> T):T =
         dbcommand(it)
     }
 
+fun <T> PreparedStatement.allFromQuery(dbCommand: (ResultSet)->T):List<T> {
+    val res:MutableList<T> = mutableListOf()
+    this.executeQuery().use {
+        while (it.next()) {
+            res.add(dbCommand(it))
+        }
+    }
+    return res
+}
+
 
 fun ResultSet.requiredString(name:String):String =
     this.getString(name)?:throw MoresleepInternalError("NotNullable stringcolumn $name was null")

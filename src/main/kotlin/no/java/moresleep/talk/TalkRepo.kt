@@ -7,6 +7,16 @@ import java.sql.ResultSet
 import java.time.LocalDateTime
 import java.util.*
 
+fun fromDataObject(data: JsonObject):Map<String,DataValue> {
+    val res:MutableMap<String,DataValue> = mutableMapOf()
+    for (key in data.keys()) {
+        val valueObject:JsonObject = data.requiredObject(key)
+        val value = DataValue(valueObject)
+        res[key] = value
+    }
+    return res
+}
+
 class TalkInDb(val id:String,val conferenceid: String,val status: SessionStatus,val postedBy: String?,val data: JsonObject,val lastUpdated:LocalDateTime) {
     constructor(rs:ResultSet):this(
             id = rs.requiredString("id"),
@@ -17,15 +27,7 @@ class TalkInDb(val id:String,val conferenceid: String,val status: SessionStatus,
             lastUpdated = rs.requiredLocalDateTime("lastupdated")
     )
 
-    val dataMap:Map<String,DataValue> = {
-        val res:MutableMap<String,DataValue> = mutableMapOf()
-        for (key in data.keys()) {
-            val valueObject:JsonObject = data.requiredObject(key)
-            val value = DataValue(valueObject)
-            res[key] = value
-        }
-        res
-    }()
+    val dataMap:Map<String,DataValue> = fromDataObject(data)
 }
 
 object TalkRepo {

@@ -9,8 +9,9 @@ class ReadOneTalk : Command {
     override fun execute(userType: UserType, parameters: Map<String, String>): TalkDetail {
         val talkid = parameters["id"]
         val talkInDb:TalkInDb = talkid?.let { TalkRepo.aTalk(it) }?:throw BadRequest("Unknown talkid $talkid")
+        val speakersInDb:List<SpeakerInDb> = SpeakerRepo.speakersOnTalk(talkid)
 
-        val talkDetail = TalkDetail(talkInDb)
+        val talkDetail = TalkDetail(talkInDb,speakersInDb)
         return talkDetail
 
     }

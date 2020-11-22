@@ -11,4 +11,12 @@ create table talk(
     status text,
     postedby text,
     lastupdated timestamp
-)
+);
+
+create table speaker(
+    id text,
+    talkid text,
+    name text,
+    email text,
+    data text
+);
