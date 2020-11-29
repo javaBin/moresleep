@@ -50,4 +50,14 @@ object TalkRepo {
         statement.withResultSet { if (it.next()) TalkInDb(it) else null }
     }
 
+    fun updateTalk(talkid: String,data: JsonObject,status: SessionStatus) {
+        ServiceExecutor.connection().preparedStatement("update talk set data = ?, status = ?, lastupdated = ? where id = ?") {
+            it.setString(1,data.toJson())
+            it.setString(2,status.name)
+            it.setTimestamp(3,LocalDateTime.now())
+            it.setString(4,talkid)
+            it.executeUpdate()
+        }
+    }
+
 }
