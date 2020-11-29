@@ -46,11 +46,11 @@ class TalkTest:BaseTestClass() {
         val updatedTalk:TalkDetail = UpdateSession(mapOf(Pair("abstract",DataValue(false,JsonString("Updated abstract")))))
                 .execute(UserType.FULLACCESS, mapOf(Pair("id",talkid)))
 
-        assertThat(talkDetail.id).isEqualTo(talkid)
-        assertThat(talkDetail.data["abstract"]?.privateData).isFalse()
-        assertThat(talkDetail.data["abstract"]?.value).isEqualTo(JsonString("Here is the abstract"))
-        assertThat(talkDetail.data["outline"]?.privateData).isTrue()
-        assertThat(talkDetail.data["outline"]?.value).isEqualTo(JsonString("This is an outline"))
+        assertThat(updatedTalk.id).isEqualTo(talkid)
+        assertThat(updatedTalk.data["abstract"]?.privateData).isFalse()
+        assertThat(updatedTalk.data["abstract"]?.value).isEqualTo(JsonString("Updated abstract"))
+        assertThat(updatedTalk.data["outline"]?.privateData).isTrue()
+        assertThat(updatedTalk.data["outline"]?.value).isEqualTo(JsonString("This is an outline"))
 
     }
 
