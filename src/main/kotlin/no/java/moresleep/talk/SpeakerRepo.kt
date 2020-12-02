@@ -37,4 +37,15 @@ object SpeakerRepo {
         statement.setString(1,talkId)
         statement.allFromQuery { SpeakerInDb(it) }
     }
+
+    fun updateSpeaker(speakerid:String,name:String,email: String,data:JsonObject) {
+        ServiceExecutor.connection().preparedStatement("update speaker set name = ?, email = ?, data= ? where id = ?") {
+            it.setString(1,name)
+            it.setString(2,email)
+            it.setString(3,data.toJson())
+            it.setString(4,speakerid)
+            it.executeUpdate()
+
+        }
+    }
 }

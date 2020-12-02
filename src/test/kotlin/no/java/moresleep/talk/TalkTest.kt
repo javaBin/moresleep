@@ -5,7 +5,6 @@ import no.java.moresleep.UserType
 import no.java.moresleep.baseSpeakerDataTestset
 import no.java.moresleep.baseTalkDataTestset
 import no.java.moresleep.conference.CreateNewConference
-import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
 import org.jsonbuddy.JsonString
 import org.junit.jupiter.api.Test
@@ -51,6 +50,33 @@ class TalkTest:BaseTestClass() {
         assertThat(updatedTalk.data["abstract"]?.value).isEqualTo(JsonString("Updated abstract"))
         assertThat(updatedTalk.data["outline"]?.privateData).isTrue()
         assertThat(updatedTalk.data["outline"]?.value).isEqualTo(JsonString("This is an outline"))
+    }
+
+    @Test
+    fun updateSpeakerOnTalk() {
+        val conferenceid = CreateNewConference(name = "JavaZone 2021", slug = "javazone2021").execute(UserType.FULLACCESS, emptyMap()).id
+
+        val talkDetail:TalkDetail = CreateNewSession(
+                postedBy = "anders@java.no",
+                status = SessionStatus.SUBMITTED.toString(),
+                data = baseTalkDataTestset,
+                speakers = listOf(
+                        SpeakerUpdate(name = "Luke Skywalker", email = "luke@java.no", data = baseSpeakerDataTestset),
+                        SpeakerUpdate(name = "Darth Vader", email = "darth@java.no", data = baseSpeakerDataTestset),
+                )
+        ).execute(UserType.FULLACCESS, mapOf(Pair("conferenceId",conferenceid)))
+
+        val vaderId = talkDetail.speakers.first { it.name ==  "Darth Vader"}.id
+        val lukeid = talkDetail.speakers.first { it.name ==  "Luke Skywalker"}.id
+
+        val updatedTalk = UpdateSession(speakers = listOf(
+                SpeakerUpdate(id = lukeid),
+                SpeakerUpdate(id = vaderId,name = "Anakin Skywalker")
+        )).execute(UserType.FULLACCESS, mapOf(Pair("id",talkDetail.id)))
+
+        assertThat(updatedTalk.speakers).hasSize(2)
+        assertThat(updatedTalk.speakers.first { it.id == vaderId }.name).isEqualTo("Anakin Skywalker")
+
 
     }
 

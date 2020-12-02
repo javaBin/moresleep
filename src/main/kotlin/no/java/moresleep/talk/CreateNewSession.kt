@@ -6,7 +6,7 @@ import org.jsonbuddy.JsonObject
 import org.jsonbuddy.pojo.JsonGenerator
 
 
-private fun toDataObject(data: Map<String,DataValue>?):JsonObject {
+fun toDataObject(data: Map<String,DataValue>?):JsonObject {
     if (data?.isEmpty() != false) {
         return JsonObject()
     }
@@ -42,22 +42,8 @@ class CreateNewSession(val data: Map<String,DataValue>?=null,val postedBy:String
         val createdSpeakers:MutableList<Speaker> = mutableListOf()
 
 
-        for (speaker in speakers) {
-            if (speaker.name.isNullOrEmpty()) {
-                throw BadRequest("Missing name in speaker")
-            }
-            if (speaker.email.isNullOrEmpty()) {
-                throw BadRequest("Missing email in speaker")
-            }
-            val speakerid = SpeakerRepo.addSpeaker(sessionId,speaker.name,speaker.email, toDataObject(speaker.data))
-            createdSpeakers.add(
-                Speaker(
-                    id = speakerid,
-                    name = speaker.name,
-                    email = speaker.email,
-                    data = speaker.data?: emptyMap()
-                )
-            )
+        for (speaker:SpeakerUpdate in speakers) {
+            createdSpeakers.add(speaker.addToDb(sessionId))
         }
 
         val talkDetail = TalkDetail(
