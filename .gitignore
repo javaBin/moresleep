@@ -7,3 +7,4 @@
 *.iws
 target/
 .mvn/
+src/main/kotlin/no/anksoft

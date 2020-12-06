@@ -6,12 +6,13 @@ import org.flywaydb.core.Flyway
 import java.sql.Connection
 import javax.sql.DataSource
 
-private enum class DataBaseType {
-    POSTGRES,SQLLITE;
+private enum class DataBaseType(val driverClass:String?=null) {
+    POSTGRES,SQLLITE,PGINMEM("no.anksoft.pginmem.PgInMemDatasource");
 
     fun jdbcUrl(dbHost:String, dbPort:String, dataSourceName:String) = when (this) {
         POSTGRES -> "jdbc:postgresql://$dbHost:$dbPort/$dataSourceName"
         SQLLITE -> "jdbc:sqlite::memory:"
+        PGINMEM -> "jdbc:pginmem::memory:"
     }
 }
 
@@ -25,15 +26,23 @@ object Database {
 
         val dataBaseType:DataBaseType = DataBaseType.valueOf(Setup.readValue(SetupValue.DATABASE_TYPE))
 
-        val hikariConfig = HikariConfig()
-        hikariConfig.jdbcUrl = dataBaseType.jdbcUrl(dbHost,dbPort,dataSourceName)
-        if (dbUser.isNotEmpty()) {
-            hikariConfig.username = dbUser
-            hikariConfig.password = dbPassword
+        if (dataBaseType == DataBaseType.PGINMEM) {
+            Class.forName("no.anksoft.pginmem.PgInMemDatasource").getDeclaredConstructor().newInstance() as DataSource
+        } else {
+
+            val hikariConfig = HikariConfig()
+            if (dataBaseType.driverClass != null) {
+                hikariConfig.dataSourceClassName = dataBaseType.driverClass
+            }
+            hikariConfig.jdbcUrl = dataBaseType.jdbcUrl(dbHost, dbPort, dataSourceName)
+            if (dbUser.isNotEmpty()) {
+                hikariConfig.username = dbUser
+                hikariConfig.password = dbPassword
+            }
+            hikariConfig.maximumPoolSize = 10
+            val ds = HikariDataSource(hikariConfig)
+            ds
         }
-        hikariConfig.maximumPoolSize = 10
-        val ds = HikariDataSource(hikariConfig)
-        ds
     }
 
     fun migrateWithFlyway(spesialSetup:((Flyway) -> Unit)?=null) {
