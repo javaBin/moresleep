@@ -6,7 +6,7 @@ import org.flywaydb.core.Flyway
 import java.sql.Connection
 import javax.sql.DataSource
 
-private enum class DataBaseType(val driverClass:String?=null) {
+enum class DataBaseType(val driverClass:String?=null) {
     POSTGRES,SQLLITE,PGINMEM("no.anksoft.pginmem.PgInMemDatasource");
 
     fun jdbcUrl(dbHost:String, dbPort:String, dataSourceName:String) = when (this) {
@@ -45,7 +45,12 @@ object Database {
         }
     }
 
-    fun migrateWithFlyway(spesialSetup:((Flyway) -> Unit)?=null) {
+    fun migrateWithFlyway(spesialSetup:((Flyway) -> Unit)?=null, preset:((Connection)->Unit)?=null) {
+        if (preset != null) {
+            connection().use {
+                preset.invoke(it)
+            }
+        }
         val flyway:Flyway = Flyway.configure().dataSource(datasource).load()
         spesialSetup?.invoke(flyway)
         flyway.migrate()

@@ -52,6 +52,11 @@ class TalkTest:BaseTestClass() {
         assertThat(updatedTalk.data["outline"]?.value).isEqualTo(JsonString("This is an outline"))
     }
 
+    private val darthAndLukeSpeakers = listOf(
+        SpeakerUpdate(name = "Luke Skywalker", email = "luke@java.no", data = baseSpeakerDataTestset),
+        SpeakerUpdate(name = "Darth Vader", email = "darth@java.no", data = baseSpeakerDataTestset),
+    )
+
     @Test
     fun updateSpeakerOnTalk() {
         val conferenceid = CreateNewConference(name = "JavaZone 2021", slug = "javazone2021").execute(UserType.FULLACCESS, emptyMap()).id
@@ -60,10 +65,7 @@ class TalkTest:BaseTestClass() {
                 postedBy = "anders@java.no",
                 status = SessionStatus.SUBMITTED.toString(),
                 data = baseTalkDataTestset,
-                speakers = listOf(
-                        SpeakerUpdate(name = "Luke Skywalker", email = "luke@java.no", data = baseSpeakerDataTestset),
-                        SpeakerUpdate(name = "Darth Vader", email = "darth@java.no", data = baseSpeakerDataTestset),
-                )
+                speakers = darthAndLukeSpeakers
         ).execute(UserType.FULLACCESS, mapOf(Pair("conferenceId",conferenceid)))
 
         val vaderId = talkDetail.speakers.first { it.name ==  "Darth Vader"}.id
@@ -76,6 +78,25 @@ class TalkTest:BaseTestClass() {
 
         assertThat(updatedTalk.speakers).hasSize(2)
         assertThat(updatedTalk.speakers.first { it.id == vaderId }.name).isEqualTo("Anakin Skywalker")
+    }
+
+    @Test
+    fun shouldDeleteSpeaker() {
+        val conferenceid = CreateNewConference(name = "JavaZone 2021", slug = "javazone2021").execute(UserType.FULLACCESS, emptyMap()).id
+
+        val talkDetail:TalkDetail = CreateNewSession(
+            postedBy = "anders@java.no",
+            status = SessionStatus.SUBMITTED.toString(),
+            data = baseTalkDataTestset,
+            speakers = darthAndLukeSpeakers
+        ).execute(UserType.FULLACCESS, mapOf(Pair("conferenceId",conferenceid)))
+
+        val vaderId = talkDetail.speakers.first { it.name ==  "Darth Vader"}.id
+        val updatedTalk = UpdateSession(speakers = listOf(
+            SpeakerUpdate(id = vaderId)
+        )).execute(UserType.FULLACCESS, mapOf(Pair("id",talkDetail.id)))
+
+        assertThat(updatedTalk.speakers).hasSize(1)
 
 
     }

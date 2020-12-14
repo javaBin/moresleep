@@ -48,4 +48,12 @@ object SpeakerRepo {
 
         }
     }
+
+    fun deleteSpeaker(speakerid: String) {
+        ServiceExecutor.connection().preparedStatement("delete from speaker where id = ?") {
+            it.setString(1,speakerid)
+            it.executeUpdate()
+        }
+    }
+
 }

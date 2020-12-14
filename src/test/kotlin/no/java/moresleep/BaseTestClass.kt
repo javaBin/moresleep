@@ -1,6 +1,7 @@
 package no.java.moresleep
 
 import no.java.moresleep.talk.DataValue
+import org.flywaydb.core.Flyway
 import org.jsonbuddy.JsonObject
 import org.jsonbuddy.JsonString
 import org.junit.jupiter.api.AfterEach
@@ -9,6 +10,7 @@ import org.mockito.Mockito
 import java.io.BufferedReader
 import java.io.PrintWriter
 import java.io.StringWriter
+import java.sql.Connection
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
@@ -48,15 +50,47 @@ val baseSpeakerDataTestset:Map<String, DataValue> = mapOf(
     Pair("bio", DataValue(privateData = false,value = JsonString("This is a cool speaker"))),
 )
 
+private val flywaySchemaHistorySql = """
+     create table flyway_schema_history
+        (
+        installed_rank integer,        
+        version text,
+        description text,
+        type text,
+        script text,
+        checksum integer,
+        installed_by text,
+        installed_on timestamp default now(),
+        execution_time integer,
+        success boolean
+        )
+""".trimIndent()
+
 abstract class BaseTestClass {
+
+
     @BeforeEach
     fun setup() {
-        Setup.setValue(SetupValue.DATABASE_TYPE,"SQLLITE")
-        //Setup.setValue(SetupValue.DATABASE_TYPE,"PGINMEM")
-        Setup.setValue(SetupValue.DBUSER,"")
+        val dataBaseType:DataBaseType = DataBaseType.SQLLITE
+
+        Setup.setValue(SetupValue.DATABASE_TYPE,dataBaseType.name)
+        Setup.setValue(SetupValue.DBUSER,if (dataBaseType == DataBaseType.POSTGRES) "localdbuser" else "")
         Setup.setValue(SetupValue.DBPASSWORD,"")
         Setup.setValue(SetupValue.DATASOURCENAME,"junit")
-        Database.migrateWithFlyway({ it.clean() })
+
+        val setup:Pair<((Flyway) -> Unit)?,((Connection)->Unit)?> = when(dataBaseType) {
+            DataBaseType.POSTGRES -> Pair({it.clean()},null)
+            DataBaseType.SQLLITE -> Pair(null,null)
+            DataBaseType.PGINMEM -> Pair(null,{
+                it.createStatement().execute(flywaySchemaHistorySql)
+            })
+        }
+
+        Database.migrateWithFlyway(setup.first,setup.second)
+
+
+
+        Database.migrateWithFlyway(null)
         ServiceExecutor.createConnection()
     }
 

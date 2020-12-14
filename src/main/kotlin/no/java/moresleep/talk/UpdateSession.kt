@@ -25,6 +25,13 @@ class UpdateSession(val data: Map<String,DataValue>?=null,val speakers:List<Spea
                     SpeakerRepo.updateSpeaker(speaker.id,newName,newEmail,newData)
                 }
             }
+            for (exsisting in exsistingSpeakers) {
+                if (speakers.any { it.id == exsisting.id }) {
+                    continue
+                }
+                SpeakerRepo.deleteSpeaker(exsisting.id)
+
+            }
         }
 
         return ReadOneSession().execute(UserType.FULLACCESS,parameters)
