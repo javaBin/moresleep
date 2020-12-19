@@ -1,5 +1,7 @@
 package no.java.moresleep.java.moresleep
 
+import no.java.moresleep.Database
+import no.java.moresleep.Setup
 import org.eclipse.jetty.server.Server
 import org.eclipse.jetty.servlet.ServletHolder
 import org.eclipse.jetty.util.resource.Resource
@@ -7,12 +9,14 @@ import org.eclipse.jetty.webapp.WebAppContext
 
 
 fun main(args: Array<String>) {
-    setupAndStartServer()
+    setupAndStartServer(args)
     println("Hoyyoy")
 }
 
-private fun setupAndStartServer() {
-    val server = Server(8080)
+private fun setupAndStartServer(args: Array<String>) {
+    Setup.loadFromFile(args)
+    Database.migrateWithFlyway(null,null)
+    val server = Server(8082)
 
     server.handler = createHandler()
     server.start()

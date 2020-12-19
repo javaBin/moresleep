@@ -1,5 +1,7 @@
 package no.java.moresleep.java.moresleep
 
+import no.java.moresleep.HttpMethod
+import no.java.moresleep.ServiceExecutor
 import java.io.PrintWriter
 import javax.servlet.http.HttpServlet
 import javax.servlet.http.HttpServletRequest
@@ -8,11 +10,11 @@ import javax.servlet.http.HttpServletResponse
 class ApiServlet:HttpServlet() {
 
     override fun doGet(req: HttpServletRequest, resp: HttpServletResponse) {
-        resp.contentType = "application/json"
-        val pw = PrintWriter(resp.outputStream).use {
-            it.append("""{"greeting":42}""")
+        ServiceExecutor.doStuff(HttpMethod.GET,req,resp)
+    }
 
-        }
+    override fun doPost(req: HttpServletRequest, resp: HttpServletResponse) {
+        ServiceExecutor.doStuff(HttpMethod.POST,req,resp)
     }
 
 }
