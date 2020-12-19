@@ -20,8 +20,7 @@ class SpeakerInDb(val id:String,val talkId: String,val name:String,val email: St
 }
 
 object SpeakerRepo {
-    fun addSpeaker(talkId:String,conferenceid:String,name:String,email:String,data:JsonObject):String {
-        val id = UUID.randomUUID().toString()
+    fun addSpeaker(id:String,talkId:String,conferenceid:String,name:String,email:String,data:JsonObject) {
         ServiceExecutor.connection().preparedStatement("insert into speaker(id,talkid,conferenceid,name,email,data) values (?,?,?,?,?,?)") {
             it.setString(1,id)
             it.setString(2,talkId)
@@ -31,7 +30,6 @@ object SpeakerRepo {
             it.setString(6,data.toJson())
             it.executeUpdate()
         }
-        return id
     }
 
     fun speakersOnTalk(talkId:String):List<SpeakerInDb> = ServiceExecutor.connection().preparedStatement("select * from speaker where talkid = ?") {statement ->

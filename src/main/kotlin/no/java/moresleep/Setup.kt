@@ -10,7 +10,8 @@ enum class SetupValue(val defaultValue:String) {
     DATASOURCENAME("localdevdb"),
     DBUSER("localdevuser"),
     DBPASSWORD("localdevuser"),
-    DATABASE_TYPE("POSTGRES")
+    DATABASE_TYPE("POSTGRES"),
+    SLEEPINGPILL_AUTH("")
 }
 
 object Setup {

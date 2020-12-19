@@ -19,11 +19,14 @@ fun toDataObject(data: Map<String,DataValue>?):JsonObject {
 }
 
 
-class CreateNewSession(val data: Map<String,DataValue>?=null,val postedBy:String?=null,val status:String?=null,val speakers:List<SpeakerUpdate>?=null) : Command {
+class CreateNewSession(val data: Map<String,DataValue>?=null,val postedBy:String?=null,val status:String?=null,val speakers:List<SpeakerUpdate>?=null,val id:String?=null) : Command {
     override fun execute(userType: UserType, parameters: Map<String, String>): TalkDetail {
         val conferenceId = parameters["conferenceId"]?:throw MoresleepInternalError("Missing parameter id")
         val conf = ConferenceRepo.oneConference(conferenceId)?:throw BadRequest("Unknown conference $conferenceId")
         val sessionStatus = if (status != null) SessionStatus.saveValue(status)?:throw BadRequest("Unknown status $status") else SessionStatus.DRAFT
+        if (id != null && userType != UserType.SUPERACCESS) {
+            throw ForbiddenRequest("No id allowed")
+        }
 
         if (speakers?.isNotEmpty() != true) {
             throw BadRequest("Missing speakers")
@@ -43,7 +46,10 @@ class CreateNewSession(val data: Map<String,DataValue>?=null,val postedBy:String
 
 
         for (speaker:SpeakerUpdate in speakers) {
-            createdSpeakers.add(speaker.addToDb(sessionId,conferenceId))
+            if (speaker.id != null && userType != UserType.SUPERACCESS) {
+                throw ForbiddenRequest("No id allowed on speaker")
+            }
+            createdSpeakers.add(speaker.addToDb(sessionId,conferenceId,speaker.id))
         }
 
         val talkDetail = TalkDetail(

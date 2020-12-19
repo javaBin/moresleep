@@ -6,8 +6,8 @@ import no.java.moresleep.withResultSet
 import java.util.*
 
 object ConferenceRepo {
-    fun addNewConference(name:String,slug:String):String {
-        val id = UUID.randomUUID().toString()
+    fun addNewConference(name:String,slug:String,givenid:String?):String {
+        val id = givenid?:UUID.randomUUID().toString()
         ServiceExecutor.connection().preparedStatement("insert into conference(id,name,slug) values (?,?,?)") {
             it.setString(1,id)
             it.setString(2,name)

@@ -8,7 +8,7 @@ import no.java.moresleep.talk.ReadOneTalk
 import kotlin.reflect.KClass
 
 enum class UserType {
-    ANONYMOUS,READ_ONLY,FULLACCESS
+    ANONYMOUS,READ_ONLY,FULLACCESS,SUPERACCESS
 }
 
 class PathInfoMapped(val commandClass:KClass<out Command>,val parameters:Map<String,String>)
