@@ -50,6 +50,11 @@ object TalkRepo {
         statement.withResultSet { if (it.next()) TalkInDb(it) else null }
     }
 
+    fun allTalksInForConference(conferenceid: String):List<TalkInDb> = ServiceExecutor.connection().preparedStatement("select * from talk where conferenceid = ?") { statement ->
+        statement.setString(1,conferenceid)
+        statement.allFromQuery { TalkInDb(it) }
+    }
+
     fun updateTalk(talkid: String,data: JsonObject,status: SessionStatus) {
         ServiceExecutor.connection().preparedStatement("update talk set data = ?, status = ?, lastupdated = ? where id = ?") {
             it.setString(1,data.toJson())

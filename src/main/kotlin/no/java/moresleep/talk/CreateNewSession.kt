@@ -43,7 +43,7 @@ class CreateNewSession(val data: Map<String,DataValue>?=null,val postedBy:String
 
 
         for (speaker:SpeakerUpdate in speakers) {
-            createdSpeakers.add(speaker.addToDb(sessionId))
+            createdSpeakers.add(speaker.addToDb(sessionId,conferenceId))
         }
 
         val talkDetail = TalkDetail(

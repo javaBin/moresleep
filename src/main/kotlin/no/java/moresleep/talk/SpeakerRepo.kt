@@ -20,14 +20,15 @@ class SpeakerInDb(val id:String,val talkId: String,val name:String,val email: St
 }
 
 object SpeakerRepo {
-    fun addSpeaker(talkId:String,name:String,email:String,data:JsonObject):String {
+    fun addSpeaker(talkId:String,conferenceid:String,name:String,email:String,data:JsonObject):String {
         val id = UUID.randomUUID().toString()
-        ServiceExecutor.connection().preparedStatement("insert into speaker(id,talkid,name,email,data) values (?,?,?,?,?)") {
+        ServiceExecutor.connection().preparedStatement("insert into speaker(id,talkid,conferenceid,name,email,data) values (?,?,?,?,?,?)") {
             it.setString(1,id)
             it.setString(2,talkId)
-            it.setString(3,name)
-            it.setString(4,email)
-            it.setString(5,data.toJson())
+            it.setString(3,conferenceid)
+            it.setString(4,name)
+            it.setString(5,email)
+            it.setString(6,data.toJson())
             it.executeUpdate()
         }
         return id
@@ -35,6 +36,11 @@ object SpeakerRepo {
 
     fun speakersOnTalk(talkId:String):List<SpeakerInDb> = ServiceExecutor.connection().preparedStatement("select * from speaker where talkid = ?") {statement ->
         statement.setString(1,talkId)
+        statement.allFromQuery { SpeakerInDb(it) }
+    }
+
+    fun allSpeakersInConference(conferenceid: String):List<SpeakerInDb> = ServiceExecutor.connection().preparedStatement("select * from speaker where conferenceid = ?") { statement ->
+        statement.setString(1,conferenceid)
         statement.allFromQuery { SpeakerInDb(it) }
     }
 

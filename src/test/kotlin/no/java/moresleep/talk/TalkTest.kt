@@ -97,7 +97,35 @@ class TalkTest:BaseTestClass() {
         )).execute(UserType.FULLACCESS, mapOf(Pair("id",talkDetail.id)))
 
         assertThat(updatedTalk.speakers).hasSize(1)
+    }
 
+    @Test
+    fun shouldListAllSessions() {
+        val conferenceid = CreateNewConference(name = "JavaZone 2021", slug = "javazone2021").execute(UserType.FULLACCESS, emptyMap()).id
+        val talkDetail1:TalkDetail = CreateNewSession(
+            postedBy = "anders@java.no",
+            status = SessionStatus.SUBMITTED.toString(),
+            data = baseTalkDataTestset,
+            speakers = darthAndLukeSpeakers
+        ).execute(UserType.FULLACCESS, mapOf(Pair("conferenceId",conferenceid)))
+        val data = mapOf(
+            Pair("title", DataValue(privateData = false,value = JsonString("My cool talk title two"))),
+            Pair("abstract", DataValue(privateData = false,value = JsonString("Here is the abstract"))),
+            Pair("outline", DataValue(privateData = true,value = JsonString("This is an outline"))),
+        )
+        val talkDetail2:TalkDetail = CreateNewSession(
+            postedBy = "anders@java.no",
+            status = SessionStatus.SUBMITTED.toString(),
+            data = data,
+            speakers = darthAndLukeSpeakers
+        ).execute(UserType.FULLACCESS, mapOf(Pair("conferenceId",conferenceid)))
+
+        val allTalks:AllTalks = ReadAllTalks().execute(UserType.FULLACCESS, mapOf(Pair("conferenceId",conferenceid)))
+
+        assertThat(allTalks.sessions).hasSize(2)
+        assertThat(allTalks.sessions.map { it.id }).contains(talkDetail1.id,talkDetail2.id)
+        assertThat(allTalks.sessions.first { it.id == talkDetail1.id}.speakers).hasSize(2)
+        assertThat(allTalks.sessions.first { it.id == talkDetail1.id}.speakers.map { it.id }).containsAll(talkDetail1.speakers.map { it.id })
 
     }
 

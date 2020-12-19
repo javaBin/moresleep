@@ -16,6 +16,7 @@ create table talk(
 create table speaker(
     id text,
     talkid text,
+    conferenceid text,
     name text,
     email text,
     data text

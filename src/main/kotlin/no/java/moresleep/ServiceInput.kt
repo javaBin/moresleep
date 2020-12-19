@@ -3,6 +3,7 @@ package no.java.moresleep
 import no.java.moresleep.conference.CreateNewConference
 import no.java.moresleep.conference.ReadAllConferences
 import no.java.moresleep.talk.CreateNewSession
+import no.java.moresleep.talk.ReadAllTalks
 import no.java.moresleep.talk.ReadOneTalk
 import kotlin.reflect.KClass
 
@@ -25,7 +26,8 @@ enum class HttpMethod {
             GET ->
                 listOf(
                         Pair("/conference",ReadAllConferences::class),
-                        Pair("/session/:id",ReadOneTalk::class)
+                        Pair("/session/:id",ReadOneTalk::class),
+                        Pair("/conference/:conferenceId/session",ReadAllTalks::class)
                 )
             DELETE -> TODO()
             PUT -> TODO()
