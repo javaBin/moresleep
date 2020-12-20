@@ -1,6 +1,7 @@
 package no.java.moresleep.util
 
 import no.java.moresleep.*
+import no.java.moresleep.conference.ConferenceRepo
 import no.java.moresleep.conference.CreateNewConference
 import no.java.moresleep.talk.CreateNewSession
 import org.jsonbuddy.JsonArray
@@ -11,43 +12,46 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.util.*
 
-class PopulateWorker {
-    private val SLEEPING_PILL_ADDR = "https://sleepingpill.javazone.no"
-
-    companion object {
-        @JvmStatic
-        fun main(args: Array<String>) {
-            val me = PopulateWorker()
-            Setup.loadFromFile(args)
+object PopulateWorker {
+    private val SLEEPING_PILL_ADDR by lazy { Setup.readValue(SetupValue.SLEEPING_PILL_ADDR) }
 
 
-
-            Database.migrateWithFlyway(null,null)
-            ServiceExecutor.createConnection().use {
-                me.addTalksFromConference("02a3a811-afe1-48d3-a64b-10d9732b3735")
+    fun populateAll() {
+        if (!Setup.readBoolValue(SetupValue.LOAD_FROM_SLEEPINGPILL) || Setup.readValue(SetupValue.SLEEPINGPILL_AUTH).isBlank()) {
+            return
+        }
+        val allConfsOld = ConferenceRepo.allConferences()
+        if (allConfsOld.isNotEmpty()) {
+            return
+        }
+        ServiceExecutor.createConnection().use {
+            readAllConferencesPoulate()
+            ServiceExecutor.commit()
+            for (conference in ConferenceRepo.allConferences()) {
+                addTalksFromConference(conference.id)
+                ServiceExecutor.commit()
             }
         }
+
     }
 
-    fun readAllConferencesPoulate() {
+    private fun readAllConferencesPoulate() {
         val allConfs:List<JsonObject> = readAllConferencesFromSp().objects({it})
         for (conference in allConfs) {
             addConference(conference)
         }
+
     }
 
-    fun addTalksFromConference(conferenceId:String) {
+    private fun addTalksFromConference(conferenceId:String) {
         val conn = openConnection("$SLEEPING_PILL_ADDR/data/conference/$conferenceId/session")
         val obj:JsonObject = JsonObject.read(conn)
         val sessions:List<JsonObject> = obj.requiredArray("sessions").objects { it }
-        println ("Starting ${sessions.size}")
-        var num=0
         for (spsession in sessions) {
             val createNewSession = PojoMapper.map(spsession,CreateNewSession::class.java)
             createNewSession.execute(UserType.SUPERACCESS, mapOf("conferenceId" to conferenceId))
             ServiceExecutor.commit()
-            num++
-            println("Done $num")
+
         }
     }
 

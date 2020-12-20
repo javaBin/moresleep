@@ -2,6 +2,7 @@ package no.java.moresleep.java.moresleep
 
 import no.java.moresleep.Database
 import no.java.moresleep.Setup
+import no.java.moresleep.util.PopulateWorker
 import org.eclipse.jetty.server.Server
 import org.eclipse.jetty.servlet.ServletHolder
 import org.eclipse.jetty.util.resource.Resource
@@ -16,6 +17,7 @@ fun main(args: Array<String>) {
 private fun setupAndStartServer(args: Array<String>) {
     Setup.loadFromFile(args)
     Database.migrateWithFlyway(null,null)
+    PopulateWorker.populateAll()
     val server = Server(8082)
 
     server.handler = createHandler()

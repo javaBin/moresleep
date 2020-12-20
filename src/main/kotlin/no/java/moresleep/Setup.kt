@@ -11,13 +11,16 @@ enum class SetupValue(val defaultValue:String) {
     DBUSER("localdevuser"),
     DBPASSWORD("localdevuser"),
     DATABASE_TYPE("POSTGRES"),
-    SLEEPINGPILL_AUTH("")
+    SLEEPINGPILL_AUTH(""),
+    LOAD_FROM_SLEEPINGPILL("false"),
+    SLEEPING_PILL_ADDR("https://sleepingpill.javazone.no")
 }
 
 object Setup {
     private val setupvalues:ConcurrentMap<SetupValue,String> = ConcurrentHashMap()
 
     fun readValue(setupValue: SetupValue):String = setupvalues[setupValue]?:setupValue.defaultValue
+    fun readBoolValue(setupValue: SetupValue):Boolean = (readValue(setupValue) == "true")
 
     fun loadFromFile(args: Array<String>) {
         if (args.size < 1) {
