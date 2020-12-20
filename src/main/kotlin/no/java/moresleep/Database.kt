@@ -17,7 +17,7 @@ enum class DataBaseType(val driverClass:String?=null) {
 }
 
 object Database {
-    private val datasource:DataSource by lazy {
+    val datasource:DataSource by lazy {
         val dbHost = Setup.readValue(SetupValue.DBHOST)
         val dbPort = Setup.readValue(SetupValue.DBPORT)
         val dataSourceName = Setup.readValue(SetupValue.DATASOURCENAME)

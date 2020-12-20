@@ -1,6 +1,7 @@
 package no.java.moresleep.util
 
 import no.java.moresleep.*
+import no.java.moresleep.conference.Conference
 import no.java.moresleep.conference.ConferenceRepo
 import no.java.moresleep.conference.CreateNewConference
 import no.java.moresleep.talk.CreateNewSession
@@ -20,7 +21,9 @@ object PopulateWorker {
         if (!Setup.readBoolValue(SetupValue.LOAD_FROM_SLEEPINGPILL) || Setup.readValue(SetupValue.SLEEPINGPILL_AUTH).isBlank()) {
             return
         }
-        val allConfsOld = ConferenceRepo.allConferences()
+        val allConfsOld = ServiceExecutor.createConnection().use {
+            ConferenceRepo.allConferences()
+        }
         if (allConfsOld.isNotEmpty()) {
             return
         }
@@ -28,7 +31,7 @@ object PopulateWorker {
             readAllConferencesPoulate()
             ServiceExecutor.commit()
             for (conference in ConferenceRepo.allConferences()) {
-                addTalksFromConference(conference.id)
+                addTalksFromConference(conference)
                 ServiceExecutor.commit()
             }
         }
@@ -43,14 +46,20 @@ object PopulateWorker {
 
     }
 
-    private fun addTalksFromConference(conferenceId:String) {
+    private fun addTalksFromConference(conference: Conference) {
+        val conferenceId:String = conference.id
         val conn = openConnection("$SLEEPING_PILL_ADDR/data/conference/$conferenceId/session")
         val obj:JsonObject = JsonObject.read(conn)
         val sessions:List<JsonObject> = obj.requiredArray("sessions").objects { it }
+        println("Adding ${sessions.size} from ${conference.name}")
         for (spsession in sessions) {
             val createNewSession = PojoMapper.map(spsession,CreateNewSession::class.java)
-            createNewSession.execute(UserType.SUPERACCESS, mapOf("conferenceId" to conferenceId))
-            ServiceExecutor.commit()
+            try {
+                createNewSession.execute(UserType.SUPERACCESS, mapOf("conferenceId" to conferenceId))
+                ServiceExecutor.commit()
+            } catch (br:BadRequest) {
+                ServiceExecutor.rollback()
+            }
 
         }
     }

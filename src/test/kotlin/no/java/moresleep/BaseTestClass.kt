@@ -76,7 +76,7 @@ abstract class BaseTestClass {
         Setup.setValue(SetupValue.DATABASE_TYPE,dataBaseType.name)
         Setup.setValue(SetupValue.DBUSER,if (dataBaseType == DataBaseType.POSTGRES) "localdbuser" else "")
         Setup.setValue(SetupValue.DBPASSWORD,"")
-        Setup.setValue(SetupValue.DATASOURCENAME,"junit")
+        Setup.setValue(SetupValue.DATASOURCENAME,"moresleepunit")
 
         val setup:Pair<((Flyway) -> Unit)?,((Connection)->Unit)?> = when(dataBaseType) {
             DataBaseType.POSTGRES -> Pair({it.clean()},null)

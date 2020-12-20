@@ -87,6 +87,10 @@ object ServiceExecutor {
         connectionsUsed[Thread.currentThread().id]?.connection?.commit()
     }
 
+    fun rollback() {
+        connectionsUsed[Thread.currentThread().id]?.connection?.rollback()
+    }
+
     fun closeConnection() {
         val threadId = Thread.currentThread().id
         val dbconnection = connectionsUsed.remove(threadId)?:throw MoresleepInternalError("Transaction Connection not found")

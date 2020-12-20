@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentMap
 enum class SetupValue(val defaultValue:String) {
     DBHOST("localhost"),
     DBPORT("5432"),
-    DATASOURCENAME("localdevdb"),
+    DATASOURCENAME("moresleeplocal"),
     DBUSER("localdevuser"),
     DBPASSWORD("localdevuser"),
     DATABASE_TYPE("POSTGRES"),
