@@ -17,4 +17,8 @@ class ApiServlet:HttpServlet() {
         ServiceExecutor.doStuff(HttpMethod.POST,req,resp)
     }
 
+    override fun doPut(req: HttpServletRequest, resp: HttpServletResponse) {
+        //xServiceExecutor.doStuff(HttpMethod.PUT,)
+    }
+
 }

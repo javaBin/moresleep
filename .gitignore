@@ -8,3 +8,5 @@
 target/
 .mvn/
 src/main/kotlin/no/anksoft
+.DS_Store
+
