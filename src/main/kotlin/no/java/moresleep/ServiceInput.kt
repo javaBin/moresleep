@@ -5,6 +5,7 @@ import no.java.moresleep.conference.ReadAllConferences
 import no.java.moresleep.talk.CreateNewSession
 import no.java.moresleep.talk.ReadAllTalks
 import no.java.moresleep.talk.ReadOneTalk
+import no.java.moresleep.talk.UpdateSession
 import kotlin.reflect.KClass
 
 enum class UserType {
@@ -30,7 +31,9 @@ enum class HttpMethod {
                         Pair("/conference/:conferenceId/session",ReadAllTalks::class)
                 )
             DELETE -> TODO()
-            PUT -> TODO()
+            PUT -> listOf(
+                Pair("/session/:id",UpdateSession::class)
+            )
         }
         for (decition in decitionList) {
             val pathmatch = mapFromPath(pathinfo,decition.first)
