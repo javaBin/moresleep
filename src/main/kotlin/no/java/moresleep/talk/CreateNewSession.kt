@@ -55,8 +55,9 @@ class CreateNewSession(val data: Map<String,DataValue>?=null,val postedBy:String
         val talkDetail = TalkDetail(
                 id = sessionId,
                 postedBy = postedBy,
+                status = sessionStatus,
                 data = data?: emptyMap(),
-                speakers = createdSpeakers
+                speakers = createdSpeakers,
         )
         return talkDetail
     }

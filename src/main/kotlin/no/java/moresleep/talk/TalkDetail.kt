@@ -2,7 +2,7 @@ package no.java.moresleep.talk
 
 import no.java.moresleep.ServiceResult
 
-class TalkDetail(val id:String,val postedBy:String?,val data: Map<String,DataValue>,val speakers:List<Speaker>) : ServiceResult() {
+class TalkDetail(val id:String,val postedBy:String?,val data: Map<String,DataValue>,val status:SessionStatus,val speakers:List<Speaker>) : ServiceResult() {
 
 
     val sessionId = id
@@ -11,6 +11,7 @@ class TalkDetail(val id:String,val postedBy:String?,val data: Map<String,DataVal
         id = talkInDb.id,
         postedBy = talkInDb.postedBy,
         data = talkInDb.dataMap,
+        status = talkInDb.status,
         speakers = speakers.map { Speaker(
             id = it.id,
             name = it.name,
