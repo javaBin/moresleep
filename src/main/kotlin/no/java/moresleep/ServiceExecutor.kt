@@ -2,9 +2,11 @@ package no.java.moresleep
 
 import org.jsonbuddy.JsonObject
 import org.jsonbuddy.pojo.PojoMapper
+import java.io.UnsupportedEncodingException
 import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
@@ -30,6 +32,42 @@ private class MyDbConnection(val connection: Connection):DbConnection {
     override fun close() {
         ServiceExecutor.closeConnection()
     }
+
+}
+
+private class Credentials(private val login:String,private val password:String) {
+    fun matches(userPasswordString:String):Boolean {
+        return (userPasswordString == "$login:$password")
+    }
+}
+
+private fun credentialsWithBasicAuthentication(req: HttpServletRequest):Credentials?  {
+    val authHeader: String = req.getHeader("Authorization")?:return null
+    val st = StringTokenizer(authHeader)
+    if (st.hasMoreTokens()) {
+        val basic = st.nextToken()
+        if (!basic.equals("Basic", ignoreCase = true)) {
+            return null
+        }
+        return try {
+            val credentials:String = Base64.getDecoder().decode(st.nextToken()).toString()
+            val pos:Int = credentials.indexOf(":")
+            if (pos != -1) {
+                val login = credentials.substring(0, pos).trim()
+                val password = credentials.substring(pos + 1).trim()
+                Credentials(
+                    login,
+                    password
+                )
+            } else {
+                null
+            }
+        } catch (e: UnsupportedEncodingException) {
+            null
+        }
+
+    }
+    return null
 
 }
 
@@ -59,9 +97,18 @@ object ServiceExecutor {
             throw BadRequest("Invalid input")
         }
 
+        val credentials = credentialsWithBasicAuthentication(request)
+        val userType:UserType = when {
+            Setup.readBoolValue(SetupValue.ALL_OPEN_MODE) -> UserType.FULLACCESS
+            credentials?.matches(Setup.readValue(SetupValue.ALLACCESS_USER)) == true -> UserType.FULLACCESS
+            credentials?.matches(Setup.readValue(SetupValue.READ_USER)) == true -> UserType.READ_ONLY
+            credentials != null -> throw ForbiddenRequest("Unknown authorization")
+            else -> UserType.ANONYMOUS
+        }
+
 
         val result:ServiceResult = try {
-            doExecutor(command,UserType.ANONYMOUS,pathMap.parameters)
+            doExecutor(command,userType,pathMap.parameters)
         } catch (reqestError:RequestError) {
             response.sendError(reqestError.httpError,reqestError.errormessage)
             return

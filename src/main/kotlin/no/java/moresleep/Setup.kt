@@ -13,7 +13,10 @@ enum class SetupValue(val defaultValue:String) {
     DATABASE_TYPE("POSTGRES"),
     SLEEPINGPILL_AUTH(""),
     LOAD_FROM_SLEEPINGPILL("false"),
-    SLEEPING_PILL_ADDR("https://sleepingpill.javazone.no")
+    SLEEPING_PILL_ADDR("https://sleepingpill.javazone.no"),
+    ALL_OPEN_MODE("true"),
+    ALLACCESS_USER(""),
+    READ_USER("")
 }
 
 object Setup {
