@@ -61,4 +61,6 @@ class CreateNewSession(val data: Map<String,DataValue>?=null,val postedBy:String
         )
         return talkDetail
     }
+
+    override val requiredAccess: UserType = UserType.FULLACCESS
 }

@@ -47,4 +47,6 @@ class UpdateSession(val data: Map<String,DataValue>?=null,val speakers:List<Spea
             }
         }
     }
+
+    override val requiredAccess: UserType = UserType.FULLACCESS
 }

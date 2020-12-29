@@ -19,4 +19,6 @@ class ReadAllTalks:Command {
         }
         return AllTalks(sessions)
     }
+
+    override val requiredAccess: UserType = UserType.READ_ONLY
 }

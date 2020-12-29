@@ -16,4 +16,6 @@ class ReadOneTalk : Command {
 
     }
 
+    override val requiredAccess: UserType = UserType.READ_ONLY
+
 }

@@ -12,4 +12,6 @@ class ReadOneSession : Command {
         val speakerInDb:List<SpeakerInDb> = SpeakerRepo.speakersOnTalk(id)
         return TalkDetail(talkinDb,speakerInDb)
     }
+
+    override val requiredAccess: UserType = UserType.READ_ONLY
 }

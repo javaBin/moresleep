@@ -7,6 +7,7 @@ import org.assertj.core.api.Assertions
 import org.jsonbuddy.JsonObject
 import org.jsonbuddy.pojo.JsonGenerator
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.fail
 import org.mockito.Mockito
 import java.io.BufferedReader
 import javax.servlet.http.HttpServletRequest
@@ -64,10 +65,43 @@ class IntegrationTest:BaseTestClass() {
         val createNewSession = CreateNewSession(data= baseTalkDataTestset,postedBy = "anders@java.no",status = SessionStatus.SUBMITTED.name,
             speakers = listOf(SpeakerUpdate(name = "Anders Lastname",email = "anders@java.no",data = baseSpeakerDataTestset)))
         val createPayload:JsonObject = JsonGenerator.generate(createNewSession) as JsonObject
+        createPayload.remove("requiredAccess")
         val resultObject = doCommandForTest("/conference/$conferenceid/session",HttpMethod.POST,createPayload.toJson())
         val talkid = resultObject.requiredString("id")
 
         val readTalk:JsonObject = doCommandForTest("/session/$talkid",HttpMethod.GET)
         Assertions.assertThat(readTalk).isEqualTo(resultObject)
+    }
+
+    @Test
+    fun checkFailedWhenAnonymous() {
+        Setup.setValue(SetupValue.ALL_OPEN_MODE,"false")
+
+        val request = Mockito.mock(HttpServletRequest::class.java)
+        Mockito.`when`(request.pathInfo).thenReturn("/conference")
+        val createPayload = JsonObject().put("name", "Javazone 2021").put("slug", "javazone2021").toJson()
+        val inputReader = BufferedReader(createPayload.reader())
+        Mockito.`when`(request.reader).thenReturn(inputReader)
+
+
+        val mockresp = Mockito.mock(HttpServletResponse::class.java)
+
+        val myResponse = MyResponse(mockresp)
+
+
+        ServiceExecutor.doStuff("/data",HttpMethod.POST, request, myResponse) { command, usertype, pathinfo ->
+            fail("Expected sendError")
+        }
+
+        Assertions.assertThat(myResponse.calledError).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED)
+
+        Setup.setValue(SetupValue.ALL_OPEN_MODE,"true")
+    }
+}
+
+private class MyResponse(httpServletResponse: HttpServletResponse):HttpServletResponse by httpServletResponse {
+    var calledError:Int? = null
+    override fun sendError(sc: Int, msg: String?) {
+        calledError = sc
     }
 }

@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletResponse
 class CreateConferenceResult(val id:String):ServiceResult()
 
 class CreateNewConference(val name:String?=null,val slug:String?=null,val id:String?=null):Command {
+
     override fun execute(userType: UserType, parameters: Map<String, String>): CreateConferenceResult {
         if (name.isNullOrEmpty() || name.trim().isEmpty()) {
             throw BadRequest("Missing required value name")
@@ -19,5 +20,7 @@ class CreateNewConference(val name:String?=null,val slug:String?=null,val id:Str
         val id = ConferenceRepo.addNewConference(name,slug,id)
         return CreateConferenceResult(id)
     }
+
+    override val requiredAccess: UserType = UserType.FULLACCESS
 
 }

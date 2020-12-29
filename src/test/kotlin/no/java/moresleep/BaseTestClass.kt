@@ -78,6 +78,7 @@ abstract class BaseTestClass {
         Setup.setValue(SetupValue.DBPASSWORD,"")
         Setup.setValue(SetupValue.DATASOURCENAME,"moresleepunit")
 
+
         val setup:Pair<((Flyway) -> Unit)?,((Connection)->Unit)?> = when(dataBaseType) {
             DataBaseType.POSTGRES -> Pair({it.clean()},null)
             DataBaseType.SQLLITE -> Pair(null,null)

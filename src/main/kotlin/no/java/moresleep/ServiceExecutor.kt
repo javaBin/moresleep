@@ -91,6 +91,10 @@ object ServiceExecutor {
             HttpMethod.POST,HttpMethod.PUT -> request.reader.use {  JsonObject.read(it) }
         }
 
+        if (payload.containsKey("requiredAccess")) {
+            throw ForbiddenRequest("No requiredAccess")
+        }
+
         val command:Command = try {
             PojoMapper.map(payload, pathMap.commandClass.java)
         } catch (e:Exception) {
@@ -107,7 +111,16 @@ object ServiceExecutor {
         }
 
 
+
         val result:ServiceResult = try {
+            if (userType < command.requiredAccess) {
+                if (userType == UserType.ANONYMOUS) {
+                    throw RequestError(HttpServletResponse.SC_UNAUTHORIZED,"Unauthorized")
+                } else {
+                    throw ForbiddenRequest("Not required access")
+                }
+            }
+
             doExecutor(command,userType,pathMap.parameters)
         } catch (reqestError:RequestError) {
             response.sendError(reqestError.httpError,reqestError.errormessage)
