@@ -36,7 +36,7 @@ private class MyDbConnection(val connection: Connection):DbConnection {
 object ServiceExecutor {
     private val connectionsUsed:ConcurrentHashMap<Long,MyDbConnection> = ConcurrentHashMap()
 
-    fun doStuff(httpMethod: HttpMethod,request:HttpServletRequest,response: HttpServletResponse,
+    fun doStuff(baseUrl:String,httpMethod: HttpMethod,request:HttpServletRequest,response: HttpServletResponse,
                 doExecutor:(Command,UserType,Map<String,String>)->ServiceResult = {
                     command,usertype,parameters ->
                     createConnection().use {
@@ -45,7 +45,7 @@ object ServiceExecutor {
                         res
                     }
     }) {
-        val pathinfo:String = request.pathInfo!!
+        val pathinfo:String = baseUrl + (request.pathInfo?:"")
         val pathMap = httpMethod.commandFromPathInfo(pathinfo)?:throw BadRequest("Unknown path $pathinfo")
 
         val payload:JsonObject = when (httpMethod) {

@@ -25,7 +25,7 @@ class IntegrationTest:BaseTestClass() {
 
         val response = Mockito.mock(HttpServletResponse::class.java)
 
-        ServiceExecutor.doStuff(HttpMethod.POST,request,response){ command, usertype, pathinfo ->
+        ServiceExecutor.doStuff("/data",HttpMethod.POST,request,response){ command, usertype, pathinfo ->
             command.execute(usertype, pathinfo)
         }
 

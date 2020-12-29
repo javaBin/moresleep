@@ -38,7 +38,7 @@ private fun createHandler(): WebAppContext {
         webAppContext.resourceBase = "src/main/resources/webapp"
     }
 
-    webAppContext.addServlet(ServletHolder(ApiServlet()), "/data/*")
+    webAppContext.addServlet(ServletHolder(ApiServlet("/data")), "/data/*")
 
     //if (Setup.forceServerHttps()) {
     //    webAppContext.addFilter(FilterHolder(AddStrictSecurityHeaderFilter()), "*", EnumSet.of(DispatcherType.REQUEST))

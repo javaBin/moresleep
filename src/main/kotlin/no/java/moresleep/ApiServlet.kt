@@ -7,18 +7,18 @@ import javax.servlet.http.HttpServlet
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
-class ApiServlet:HttpServlet() {
+class ApiServlet(val baseUrl:String):HttpServlet() {
 
     override fun doGet(req: HttpServletRequest, resp: HttpServletResponse) {
-        ServiceExecutor.doStuff(HttpMethod.GET,req,resp)
+        ServiceExecutor.doStuff(baseUrl,HttpMethod.GET,req,resp)
     }
 
     override fun doPost(req: HttpServletRequest, resp: HttpServletResponse) {
-        ServiceExecutor.doStuff(HttpMethod.POST,req,resp)
+        ServiceExecutor.doStuff(baseUrl,HttpMethod.POST,req,resp)
     }
 
     override fun doPut(req: HttpServletRequest, resp: HttpServletResponse) {
-        ServiceExecutor.doStuff(HttpMethod.PUT,req,resp)
+        ServiceExecutor.doStuff(baseUrl,HttpMethod.PUT,req,resp)
     }
 
 }

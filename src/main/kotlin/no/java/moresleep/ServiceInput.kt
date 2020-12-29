@@ -20,19 +20,19 @@ enum class HttpMethod {
     fun commandFromPathInfo(pathinfo: String):PathInfoMapped? {
         val decitionList:List<Pair<String,KClass<out Command>>> = when (this) {
             POST -> listOf(
-                        Pair("/conference",CreateNewConference::class),
-                        Pair("/conference/:conferenceId/session",CreateNewSession::class),
+                        Pair("/data/conference",CreateNewConference::class),
+                        Pair("/data/conference/:conferenceId/session",CreateNewSession::class),
                 )
 
             GET ->
                 listOf(
-                        Pair("/conference",ReadAllConferences::class),
-                        Pair("/session/:id",ReadOneTalk::class),
-                        Pair("/conference/:conferenceId/session",ReadAllTalks::class)
+                        Pair("/data/conference",ReadAllConferences::class),
+                        Pair("/data/session/:id",ReadOneTalk::class),
+                        Pair("/data/conference/:conferenceId/session",ReadAllTalks::class)
                 )
             DELETE -> TODO()
             PUT -> listOf(
-                Pair("/session/:id",UpdateSession::class)
+                Pair("/data/session/:id",UpdateSession::class)
             )
         }
         for (decition in decitionList) {

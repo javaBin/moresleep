@@ -14,7 +14,7 @@ import java.sql.Connection
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
-fun doCommandForTest(pathInfo:String,httpMethod:HttpMethod,createPayload:String?=null):JsonObject {
+fun doCommandForTest(pathInfo:String,httpMethod:HttpMethod,createPayload:String?=null,baseUrl:String="/data"):JsonObject {
     val request = Mockito.mock(HttpServletRequest::class.java)
 
     Mockito.`when`(request.pathInfo).thenReturn(pathInfo)
@@ -31,7 +31,7 @@ fun doCommandForTest(pathInfo:String,httpMethod:HttpMethod,createPayload:String?
 
 
 
-    ServiceExecutor.doStuff(httpMethod, request, response) { command, usertype, pathinfo ->
+    ServiceExecutor.doStuff(baseUrl,httpMethod, request, response) { command, usertype, pathinfo ->
         command.execute(usertype, pathinfo)
     }
 
