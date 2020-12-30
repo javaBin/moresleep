@@ -2,14 +2,20 @@ package no.java.moresleep.talk
 
 import no.java.moresleep.BadRequest
 import no.java.moresleep.Command
+import no.java.moresleep.RequestError
 import no.java.moresleep.UserType
 import org.jsonbuddy.JsonObject
 import org.jsonbuddy.pojo.JsonGenerator
+import javax.servlet.http.HttpServletResponse
 
-class UpdateSession(val data: Map<String,DataValue>?=null,val speakers:List<SpeakerUpdate>?=null):Command {
+class UpdateSession(val data: Map<String,DataValue>?=null,val speakers:List<SpeakerUpdate>?=null,val lastUpdated:String?=null):Command {
     override fun execute(userType: UserType, parameters: Map<String, String>): TalkDetail {
         val id = parameters["id"]?:throw BadRequest("Missing id")
         val talkInDb:TalkInDb = TalkRepo.aTalk(id)?:throw BadRequest("Unknown talk $id")
+
+        if (lastUpdated != null && lastUpdated != talkInDb.lastUpdated.toString()) {
+            throw RequestError(HttpServletResponse.SC_CONFLICT,"Expected lastUpdated ${talkInDb.lastUpdated}, was $lastUpdated")
+        }
 
         updateDataObject(data, talkInDb.data)
         TalkRepo.updateTalk(id,talkInDb.data,talkInDb.status)
