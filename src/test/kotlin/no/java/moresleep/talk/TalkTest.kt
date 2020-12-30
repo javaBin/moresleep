@@ -127,6 +127,9 @@ class TalkTest:BaseTestClass() {
         assertThat(allTalks.sessions.first { it.id == talkDetail1.id}.speakers).hasSize(2)
         assertThat(allTalks.sessions.first { it.id == talkDetail1.id}.speakers.map { it.id }).containsAll(talkDetail1.speakers.map { it.id })
 
+        val talksBySubmitter = ReadTalksBySubmitter().execute(UserType.FULLACCESS, mapOf(Pair("email","luke@java.no")))
+        assertThat(talksBySubmitter.sessions).hasSize(2)
+
     }
 
     @Test

@@ -66,6 +66,15 @@ object TalkRepo {
         statement.allFromQuery { TalkInDb(it) }
     }
 
+    fun allTalksForEmailAddress(email:String):List<TalkInDb> = ServiceExecutor.connection().preparedStatement(
+        """select t.* from talk t, speaker s where s.email = ? and s.talkid = t.id"""
+    ) { statement ->
+        statement.setString(1,email)
+        statement.allFromQuery {
+            TalkInDb(it)
+        }
+    }
+
     fun updateTalk(talkid: String,data: JsonObject,status: SessionStatus) {
         ServiceExecutor.connection().preparedStatement("update talk set data = ?, status = ?, lastupdated = ? where id = ?") {
             it.setString(1,data.toJson())
