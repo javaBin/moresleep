@@ -46,7 +46,9 @@ class CreateNewSession(val data: Map<String,DataValue>?=null,val postedBy:String
                 status = sessionStatus,
                 postedBy = postedBy,
                 data = dataObject,
-                lastUpdated = lastUpdatedTime
+                lastUpdated = lastUpdatedTime,
+                publicdata = null,
+                publishedAt = null
             )
 
         val createdSpeakers:MutableList<Speaker> = mutableListOf()
@@ -59,15 +61,9 @@ class CreateNewSession(val data: Map<String,DataValue>?=null,val postedBy:String
             createdSpeakers.add(speaker.addToDb(sessionId,conferenceId,speaker.id))
         }
 
-        val talkDetail = TalkDetail(
-                id = sessionId,
-                postedBy = postedBy,
-                status = sessionStatus,
-                data = data?: emptyMap(),
-                speakers = createdSpeakers,
-                lastUpdated = lastUpdatedTime.toString()
-        )
-        return talkDetail
+        return ReadOneTalk().execute(userType, mapOf(Pair("id",sessionId)))
+
+
     }
 
     override val requiredAccess: UserType = UserType.FULLACCESS

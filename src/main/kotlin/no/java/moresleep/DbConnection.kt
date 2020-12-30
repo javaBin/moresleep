@@ -33,4 +33,7 @@ fun ResultSet.requiredString(name:String):String =
 fun ResultSet.requiredLocalDateTime(name:String):LocalDateTime =
         this.getTimestamp(name).toLocalDateTime()?:throw MoresleepInternalError("NotNullable localdatetimecolumn $name was null")
 
+fun ResultSet.getLocalDateTime(name:String):LocalDateTime? = this.getTimestamp(name)?.toLocalDateTime()
+
+
 fun PreparedStatement.setTimestamp(parameterIndex: Int, x: LocalDateTime?) = this.setTimestamp(parameterIndex, x?.let { Timestamp.valueOf(it) })

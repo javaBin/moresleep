@@ -8,9 +8,11 @@ create table talk(
     id text,
     conferenceid text,
     data text,
+    publicdata text,
     status text,
     postedby text,
-    lastupdated timestamp
+    lastupdated timestamp,
+    publishedat timestamp
 );
 
 create table speaker(

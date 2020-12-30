@@ -129,4 +129,27 @@ class TalkTest:BaseTestClass() {
 
     }
 
+    @Test
+    fun publishTalk() {
+        val conferenceid = CreateNewConference(name = "JavaZone 2021", slug = "javazone2021").execute(UserType.FULLACCESS, emptyMap()).id
+        val talkDetail:TalkDetail = CreateNewSession(
+            postedBy = "anders@java.no",
+            status = SessionStatus.SUBMITTED.toString(),
+            data = baseTalkDataTestset,
+            speakers = darthAndLukeSpeakers
+        ).execute(UserType.FULLACCESS, mapOf(Pair("conferenceId",conferenceid)))
+
+        assertThat(talkDetail.sessionUpdates.hasUnpublishedChanges).isFalse()
+
+        PublishTalk().execute(UserType.FULLACCESS, mapOf(Pair("id",talkDetail.id)))
+        val updatedTalk:TalkDetail = UpdateSession(mapOf(Pair("abstract",DataValue(false,JsonString("Updated abstract")))))
+            .execute(UserType.FULLACCESS, mapOf(Pair("id",talkDetail.id)))
+
+        assertThat(updatedTalk.data["abstract"]!!.value!!.stringValue()).isEqualTo("Updated abstract")
+        assertThat(updatedTalk.sessionUpdates.hasUnpublishedChanges).isTrue()
+        assertThat(updatedTalk.sessionUpdates.oldValues).hasSize(1)
+        assertThat(updatedTalk.sessionUpdates.oldValues[0].key).isEqualTo("abstract")
+        assertThat(updatedTalk.sessionUpdates.oldValues[0].value).isEqualTo("Here is the abstract")
+
+    }
 }
