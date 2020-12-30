@@ -31,13 +31,13 @@ class TalkInDb(val id:String,val conferenceid: String,val status: SessionStatus,
 }
 
 object TalkRepo {
-    fun addNewTalk(talkid:String,conferenceid:String,status: SessionStatus,postedBy:String?,data:JsonObject) {
+    fun addNewTalk(talkid:String,conferenceid:String,status: SessionStatus,postedBy:String?,data:JsonObject,lastUpdated: LocalDateTime) {
         ServiceExecutor.connection().preparedStatement("insert into talk(id,conferenceid,data,status,lastupdated,postedby) values (?,?,?,?,?,?)") {
             it.setString(1,talkid)
             it.setString(2,conferenceid)
             it.setString(3,data.toJson())
             it.setString(4,status.name)
-            it.setTimestamp(5,LocalDateTime.now())
+            it.setTimestamp(5,lastUpdated)
             it.setString(6,postedBy)
             it.executeUpdate()
         }

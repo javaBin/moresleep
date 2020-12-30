@@ -4,6 +4,7 @@ import no.java.moresleep.*
 import no.java.moresleep.conference.ConferenceRepo
 import org.jsonbuddy.JsonObject
 import org.jsonbuddy.pojo.JsonGenerator
+import java.time.LocalDateTime
 import java.util.*
 
 
@@ -20,13 +21,13 @@ fun toDataObject(data: Map<String,DataValue>?):JsonObject {
 }
 
 
-class CreateNewSession(val data: Map<String,DataValue>?=null,val postedBy:String?=null,val status:String?=null,val speakers:List<SpeakerUpdate>?=null,val id:String?=null) : Command {
+class CreateNewSession(val data: Map<String,DataValue>?=null,val postedBy:String?=null,val status:String?=null,val speakers:List<SpeakerUpdate>?=null,val id:String?=null,val lastUpdated:String?=null) : Command {
     override fun execute(userType: UserType, parameters: Map<String, String>): TalkDetail {
         val conferenceId = parameters["conferenceId"]?:throw MoresleepInternalError("Missing parameter id")
         val conf = ConferenceRepo.oneConference(conferenceId)?:throw BadRequest("Unknown conference $conferenceId")
         val sessionStatus = if (status != null) SessionStatus.saveValue(status)?:throw BadRequest("Unknown status $status") else SessionStatus.DRAFT
-        if (id != null && userType != UserType.SUPERACCESS) {
-            throw ForbiddenRequest("No id allowed")
+        if ((id != null || lastUpdated != null) && userType != UserType.SUPERACCESS) {
+            throw ForbiddenRequest("No id or lastUpdated allowed")
         }
 
         if (speakers?.isNotEmpty() != true) {
@@ -38,12 +39,14 @@ class CreateNewSession(val data: Map<String,DataValue>?=null,val postedBy:String
 
         val sessionId:String = id?:UUID.randomUUID().toString()
 
+        val lastUpdatedTime = lastUpdated?.let { LocalDateTime.parse(it) }?:LocalDateTime.now()
         TalkRepo.addNewTalk(
                 talkid = sessionId,
                 conferenceid = conf.id,
                 status = sessionStatus,
                 postedBy = postedBy,
-                data = dataObject
+                data = dataObject,
+                lastUpdated = lastUpdatedTime
             )
 
         val createdSpeakers:MutableList<Speaker> = mutableListOf()
@@ -62,6 +65,7 @@ class CreateNewSession(val data: Map<String,DataValue>?=null,val postedBy:String
                 status = sessionStatus,
                 data = data?: emptyMap(),
                 speakers = createdSpeakers,
+                lastUpdated = lastUpdatedTime.toString()
         )
         return talkDetail
     }
