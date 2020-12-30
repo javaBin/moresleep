@@ -4,6 +4,7 @@ import no.java.moresleep.ServiceResult
 
 class TalkDetail(val id:String,val postedBy:String?,val data: Map<String,DataValue>,val status:SessionStatus,val speakers:List<Speaker>) : ServiceResult() {
 
+    val sessionUpdates = SessionUpdates()
 
     val sessionId = id
 

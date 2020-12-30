@@ -4,6 +4,7 @@ import no.java.moresleep.*
 import no.java.moresleep.conference.ConferenceRepo
 import org.jsonbuddy.JsonObject
 import org.jsonbuddy.pojo.JsonGenerator
+import java.util.*
 
 
 fun toDataObject(data: Map<String,DataValue>?):JsonObject {
@@ -35,7 +36,10 @@ class CreateNewSession(val data: Map<String,DataValue>?=null,val postedBy:String
 
         val dataObject = toDataObject(data)
 
-        val sessionId = TalkRepo.addNewTalk(
+        val sessionId:String = id?:UUID.randomUUID().toString()
+
+        TalkRepo.addNewTalk(
+                talkid = sessionId,
                 conferenceid = conf.id,
                 status = sessionStatus,
                 postedBy = postedBy,

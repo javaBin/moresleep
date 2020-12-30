@@ -48,7 +48,7 @@ object PopulateWorker {
 
     private fun addTalksFromConference(conference: Conference) {
         val conferenceId:String = conference.id
-        val conn = openConnection("$SLEEPING_PILL_ADDR/data/conference/$conferenceId/session")
+        val conn = openConnectionToSleepingpill("$SLEEPING_PILL_ADDR/data/conference/$conferenceId/session")
         val obj:JsonObject = JsonObject.read(conn)
         val sessions:List<JsonObject> = obj.requiredArray("sessions").objects { it }
         println("Adding ${sessions.size} from ${conference.name}")
@@ -66,7 +66,7 @@ object PopulateWorker {
 
 
     private fun readAllConferencesFromSp():JsonArray {
-        val conn = openConnection("$SLEEPING_PILL_ADDR/data/conference")
+        val conn = openConnectionToSleepingpill("$SLEEPING_PILL_ADDR/data/conference")
         val obj:JsonObject = JsonObject.read(conn)
         return obj.requiredArray("conferences")
     }
@@ -77,7 +77,7 @@ object PopulateWorker {
         ServiceExecutor.commit()
     }
 
-    private fun openConnection(urlpath:String):HttpURLConnection {
+    fun openConnectionToSleepingpill(urlpath:String):HttpURLConnection {
         val authString = Setup.readValue(SetupValue.SLEEPINGPILL_AUTH)
         if (authString.isBlank()) {
             throw RuntimeException("Needs to set sleepingpill auth")

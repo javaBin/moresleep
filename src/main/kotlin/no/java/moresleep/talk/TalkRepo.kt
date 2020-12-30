@@ -31,10 +31,9 @@ class TalkInDb(val id:String,val conferenceid: String,val status: SessionStatus,
 }
 
 object TalkRepo {
-    fun addNewTalk(conferenceid:String,status: SessionStatus,postedBy:String?,data:JsonObject):String {
-        val id = UUID.randomUUID().toString()
+    fun addNewTalk(talkid:String,conferenceid:String,status: SessionStatus,postedBy:String?,data:JsonObject) {
         ServiceExecutor.connection().preparedStatement("insert into talk(id,conferenceid,data,status,lastupdated,postedby) values (?,?,?,?,?,?)") {
-            it.setString(1,id)
+            it.setString(1,talkid)
             it.setString(2,conferenceid)
             it.setString(3,data.toJson())
             it.setString(4,status.name)
@@ -42,7 +41,6 @@ object TalkRepo {
             it.setString(6,postedBy)
             it.executeUpdate()
         }
-        return id
     }
 
     fun aTalk(talkid:String):TalkInDb? = ServiceExecutor.connection().preparedStatement("select * from talk where id = ?") {statement ->
