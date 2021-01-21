@@ -11,5 +11,7 @@ enum class SessionStatus {
 
     companion object {
         fun saveValue(value:String) = values().firstOrNull { it.name == value }
+
+        val publcStatuses = setOf(APPROVED,HISTORIC)
     }
 }

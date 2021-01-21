@@ -61,6 +61,10 @@ class CreateNewSession(val data: Map<String,DataValue>?=null,val postedBy:String
             createdSpeakers.add(speaker.addToDb(sessionId,conferenceId,speaker.id))
         }
 
+        if (id != null && SessionStatus.publcStatuses.contains(sessionStatus)) {
+            PublishTalk().execute(userType, mapOf(Pair("id",id)))
+        }
+
         return ReadOneTalk().execute(userType, mapOf(Pair("id",sessionId)))
 
 
