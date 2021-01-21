@@ -22,5 +22,5 @@ class ReadAllConferences: Command {
         return ReadAllConferencesResult(allConferences)
     }
 
-    override val requiredAccess: UserType = UserType.READ_ONLY
+    override val requiredAccess: UserType = UserType.ANONYMOUS
 }

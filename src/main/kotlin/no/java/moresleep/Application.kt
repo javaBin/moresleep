@@ -39,6 +39,7 @@ private fun createHandler(): WebAppContext {
     }
 
     webAppContext.addServlet(ServletHolder(ApiServlet("/data")), "/data/*")
+    webAppContext.addServlet(ServletHolder(ApiServlet("/public")), "/public/*")
 
     //if (Setup.forceServerHttps()) {
     //    webAppContext.addFilter(FilterHolder(AddStrictSecurityHeaderFilter()), "*", EnumSet.of(DispatcherType.REQUEST))

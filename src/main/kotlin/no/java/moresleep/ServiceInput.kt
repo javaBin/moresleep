@@ -22,14 +22,17 @@ enum class HttpMethod {
             POST -> listOf(
                         Pair("/data/conference",CreateNewConference::class),
                         Pair("/data/conference/:conferenceId/session",CreateNewSession::class),
+
                 )
 
             GET ->
                 listOf(
                         Pair("/data/conference",ReadAllConferences::class),
+                        Pair("/public/allSessions",ReadAllConferences::class),
                         Pair("/data/session/:id",ReadOneTalk::class),
                         Pair("/data/conference/:conferenceId/session",ReadAllTalks::class),
                         Pair("/data/submitter/:email/session",ReadTalksBySubmitter::class),
+
 
                 )
             DELETE -> TODO()
