@@ -154,5 +154,10 @@ class TalkTest:BaseTestClass() {
         assertThat(updatedTalk.sessionUpdates.oldValues[0].key).isEqualTo("abstract")
         assertThat(updatedTalk.sessionUpdates.oldValues[0].value).isEqualTo("Here is the abstract")
 
+        val readTalks:AllPublicTalks = ReadAllPublicTalks().execute(UserType.ANONYMOUS, mapOf(Pair("slug","javazone2021")))
+        val sessionArray = readTalks.asJsonObject().requiredArray("sessions")
+        assertThat(sessionArray).hasSize(1)
+
+
     }
 }

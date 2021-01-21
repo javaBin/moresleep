@@ -12,6 +12,8 @@ class Conference(val id:String,val name:String,val slug:String) {
             name = rs.requiredString("name"),
             slug = rs.requiredString("slug")
     )
+
+
 }
 
 class ReadAllConferencesResult(val conferences:List<Conference>):ServiceResult()

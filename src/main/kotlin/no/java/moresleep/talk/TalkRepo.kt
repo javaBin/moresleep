@@ -96,4 +96,9 @@ object TalkRepo {
         }
     }
 
+    fun publicTalksFromConference(conferenceid: String):List<JsonObject> = ServiceExecutor.connection().preparedStatement("select publicdata from talk where conferenceid = ? and publishedat is not null") { statement ->
+        statement.setString(1,conferenceid)
+        statement.allFromQuery { JsonObject.parse(it.requiredString("publicdata")) }
+    }
+
 }
