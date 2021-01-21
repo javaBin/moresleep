@@ -8,6 +8,10 @@ import org.jsonbuddy.pojo.JsonPojoBuilder
 import org.jsonbuddy.pojo.OverrideMapper
 import org.jsonbuddy.pojo.OverridesJsonGenerator
 import org.jsonbuddy.pojo.PojoMapper
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 
 private fun toPublicMap(dataMap:Map<String,DataValue>):Map<String,String> {
     val res:MutableMap<String,String> = mutableMapOf()
@@ -21,6 +25,13 @@ private fun toPublicMap(dataMap:Map<String,DataValue>):Map<String,String> {
         }
         res[entry.key] = value.stringValue()
     }
+    res["startTime"]?.let {
+        res["startTimeZulu"] = toZuluTimeString(it)
+    }
+    res["endTime"]?.let {
+        res["endTimeZulu"] = toZuluTimeString(it)
+    }
+
     return res
 }
 
@@ -56,6 +67,12 @@ class PublicSpeaker :OverridesJsonGenerator {
     }
 }
 
+private fun toZuluTimeString(localdateString: String): String {
+    val localdate = LocalDateTime.parse(localdateString)
+    val zonedDateTime = localdate.atZone(ZoneId.of("Europe/Oslo"))
+    return zonedDateTime.withZoneSameInstant(ZoneId.of("Z")).format(DateTimeFormatter.ISO_DATE_TIME)
+}
+
 class PublicTalk :OverridesJsonGenerator {
 
 
@@ -76,6 +93,7 @@ class PublicTalk :OverridesJsonGenerator {
             }
             dv[key] = jsonObject.requiredString(key)
         }
+
         dataValues = dv
         speakers = jsonObject.requiredArray("speakers").objects { PublicSpeaker(it) }
     }
