@@ -84,7 +84,10 @@ object ServiceExecutor {
                     }
     }) {
         val pathinfo:String = baseUrl + (request.pathInfo?:"")
-        val pathMap = httpMethod.commandFromPathInfo(pathinfo)?:throw BadRequest("Unknown path $pathinfo")
+        val additionalParas:Map<String,String> = request.getHeader("If-Unmodified-Since")?.let {
+            mapOf(Pair("If-Unmodified-Since",it))
+        }?: emptyMap()
+        val pathMap = httpMethod.commandFromPathInfo(pathinfo,additionalParas)?:throw BadRequest("Unknown path $pathinfo")
 
         val payload:JsonObject = when (httpMethod) {
             HttpMethod.GET,HttpMethod.DELETE -> JsonObject()
@@ -94,6 +97,8 @@ object ServiceExecutor {
         if (payload.containsKey("requiredAccess")) {
             throw ForbiddenRequest("No requiredAccess")
         }
+
+
 
         val command:Command = try {
             PojoMapper.map(payload, pathMap.commandClass.java)

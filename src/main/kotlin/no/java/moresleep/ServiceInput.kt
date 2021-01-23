@@ -17,7 +17,7 @@ class PathInfoMapped(val commandClass:KClass<out Command>,val parameters:Map<Str
 enum class HttpMethod {
     GET,DELETE,POST,PUT;
 
-    fun commandFromPathInfo(pathinfo: String):PathInfoMapped? {
+    fun commandFromPathInfo(pathinfo: String,additionalParas: Map<String, String>):PathInfoMapped? {
         val decitionList:List<Pair<String,KClass<out Command>>> = when (this) {
             POST -> listOf(
                         Pair("/data/conference",CreateNewConference::class),
@@ -45,7 +45,7 @@ enum class HttpMethod {
             )
         }
         for (decition in decitionList) {
-            val pathmatch = mapFromPath(pathinfo,decition.first)
+            val pathmatch = mapFromPath(pathinfo,decition.first,additionalParas)
             if (pathmatch != null) {
                 return PathInfoMapped(decition.second,pathmatch)
             }
@@ -54,7 +54,7 @@ enum class HttpMethod {
         return null
     }
 
-    private fun mapFromPath(pathinfo: String,pattern:String):Map<String,String>? {
+    private fun mapFromPath(pathinfo: String,pattern:String,additionalParas:Map<String,String>):Map<String,String>? {
         if (pathinfo == pattern) return emptyMap()
         var pathpos = 0
         var patternpos = 0
@@ -83,6 +83,7 @@ enum class HttpMethod {
         if (pathpos < pathinfo.length) {
             return null
         }
+        paramap.putAll(additionalParas)
         return paramap
     }
 }

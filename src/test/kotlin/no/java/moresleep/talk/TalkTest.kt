@@ -1,13 +1,16 @@
 package no.java.moresleep.talk
 
-import no.java.moresleep.BaseTestClass
-import no.java.moresleep.UserType
-import no.java.moresleep.baseSpeakerDataTestset
-import no.java.moresleep.baseTalkDataTestset
+import no.java.moresleep.*
 import no.java.moresleep.conference.CreateNewConference
 import org.assertj.core.api.Assertions.assertThat
 import org.jsonbuddy.JsonString
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.fail
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import javax.servlet.http.HttpServletResponse
 
 
 class TalkTest:BaseTestClass() {
@@ -157,6 +160,16 @@ class TalkTest:BaseTestClass() {
         val readTalks:AllPublicTalks = ReadAllPublicTalks().execute(UserType.ANONYMOUS, mapOf(Pair("slug","javazone2021")))
         val sessionArray = readTalks.asJsonObject().requiredArray("sessions")
         assertThat(sessionArray).hasSize(1)
+
+
+        val ifUnmodified = LocalDateTime.now().plusHours(1).atZone(ZoneId.of("Europe/Oslo")).format(DateTimeFormatter.RFC_1123_DATE_TIME)
+        try {
+            ReadAllPublicTalks().execute(UserType.ANONYMOUS, mapOf(Pair("slug","javazone2021"),Pair("If-Unmodified-Since",ifUnmodified)))
+            fail("Expected request error")
+        } catch (e:RequestError) {
+            assertThat(e.httpError).isEqualTo(HttpServletResponse.SC_PRECONDITION_FAILED)
+        }
+
 
 
     }

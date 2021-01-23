@@ -41,6 +41,8 @@ class TalkInDb(
     val dataMap:Map<String,DataValue> = fromDataObject(data)
 }
 
+class PublicTalkInDb(val content:JsonObject,val lastModified:LocalDateTime)
+
 object TalkRepo {
     fun addNewTalk(talkid:String,conferenceid:String,status: SessionStatus,postedBy:String?,data:JsonObject,lastUpdated: LocalDateTime, publicdata:JsonObject?,publishedAt:LocalDateTime?) {
         ServiceExecutor.connection().preparedStatement("insert into talk(id,conferenceid,data,status,lastupdated,postedby,publicdata,publishedat) values (?,?,?,?,?,?,?,?)") {
@@ -96,9 +98,12 @@ object TalkRepo {
         }
     }
 
-    fun publicTalksFromConference(conferenceid: String):List<JsonObject> = ServiceExecutor.connection().preparedStatement("select publicdata from talk where conferenceid = ? and publishedat is not null") { statement ->
+    fun publicTalksFromConference(conferenceid: String):List<PublicTalkInDb> = ServiceExecutor.connection().preparedStatement(
+        "select publicdata,publishedat from talk where conferenceid = ? and publishedat is not null") { statement ->
         statement.setString(1,conferenceid)
-        statement.allFromQuery { JsonObject.parse(it.requiredString("publicdata")) }
+        statement.allFromQuery {
+            PublicTalkInDb(JsonObject.parse(it.requiredString("publicdata")),it.requiredLocalDateTime("publishedAt"))
+        }
     }
 
 }
