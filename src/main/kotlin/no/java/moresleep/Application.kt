@@ -12,9 +12,15 @@ import org.eclipse.jetty.util.resource.Resource
 import org.eclipse.jetty.webapp.WebAppContext
 
 
-fun main(args: Array<String>) {
-    setupAndStartServer(args)
-    println("Hoyyoy")
+
+class Application {
+    companion object {
+        @JvmStatic
+        fun main(args: Array<String>) {
+            setupAndStartServer(args)
+            println("Hoyyoy")
+        }
+    }
 }
 
 private fun setupAndStartServer(args: Array<String>) {

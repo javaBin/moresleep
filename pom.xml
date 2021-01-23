@@ -13,7 +13,7 @@
         <logback_version>1.2.1</logback_version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
-        <main.class>io.ktor.server.jetty.EngineMain</main.class>
+        <main.class>no.java.moresleep.java.moresleep.Application</main.class>
     </properties>
     <repositories>
         <repository>
