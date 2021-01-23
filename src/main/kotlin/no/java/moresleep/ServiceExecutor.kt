@@ -50,7 +50,8 @@ private fun credentialsWithBasicAuthentication(req: HttpServletRequest):Credenti
             return null
         }
         return try {
-            val credentials:String = Base64.getDecoder().decode(st.nextToken()).toString()
+            val encoded = st.nextToken()
+            val credentials:String = String(Base64.getDecoder().decode(encoded))
             val pos:Int = credentials.indexOf(":")
             if (pos != -1) {
                 val login = credentials.substring(0, pos).trim()
