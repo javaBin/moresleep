@@ -5,6 +5,7 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 
 enum class SetupValue(val defaultValue:String) {
+    RUN_FROM_JAR("false"),
     DBHOST("localhost"),
     DBPORT("5432"),
     DATASOURCENAME("moresleeplocal"),

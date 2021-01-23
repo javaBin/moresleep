@@ -2,8 +2,11 @@ package no.java.moresleep.java.moresleep
 
 import no.java.moresleep.Database
 import no.java.moresleep.Setup
+import no.java.moresleep.SetupValue
 import no.java.moresleep.util.PopulateWorker
+import org.eclipse.jetty.server.Handler
 import org.eclipse.jetty.server.Server
+import org.eclipse.jetty.server.handler.gzip.GzipHandler
 import org.eclipse.jetty.servlet.ServletHolder
 import org.eclipse.jetty.util.resource.Resource
 import org.eclipse.jetty.webapp.WebAppContext
@@ -24,13 +27,12 @@ private fun setupAndStartServer(args: Array<String>) {
     server.start()
 }
 
-private fun createHandler(): WebAppContext {
+private fun createHandler(): Handler {
     val webAppContext = WebAppContext()
     webAppContext.initParams["org.eclipse.jetty.servlet.Default.useFileMappedBuffer"] = "false"
-    //webAppContext.sessionHandler.setMaxInactiveInterval(30)
     webAppContext.contextPath = "/"
 
-    if (false) {
+    if (Setup.readBoolValue(SetupValue.RUN_FROM_JAR)) {
         // Prod ie running from jar
         webAppContext.baseResource = Resource.newClassPathResource("webapp", true, false)
     } else {
@@ -41,9 +43,8 @@ private fun createHandler(): WebAppContext {
     webAppContext.addServlet(ServletHolder(ApiServlet("/data")), "/data/*")
     webAppContext.addServlet(ServletHolder(ApiServlet("/public")), "/public/*")
 
-    //if (Setup.forceServerHttps()) {
-    //    webAppContext.addFilter(FilterHolder(AddStrictSecurityHeaderFilter()), "*", EnumSet.of(DispatcherType.REQUEST))
-    //}
-    return webAppContext;
+    val gzipHandler = GzipHandler()
+    gzipHandler.handler = webAppContext
+    return gzipHandler;
 }
 
