@@ -132,6 +132,11 @@ object ServiceExecutor {
             return
         }
 
+
+        if (command is AllowAllOrigins) {
+            response.addHeader("Access-Control-Allow-Origin","*")
+        }
+
         response.contentType = "application/json"
         response.writer.append(result.asJsonObject().toJson())
     }
