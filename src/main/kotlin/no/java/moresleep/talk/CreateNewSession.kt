@@ -55,10 +55,10 @@ class CreateNewSession(val data: Map<String,DataValue>?=null,val postedBy:String
 
 
         for (speaker:SpeakerUpdate in speakers) {
-            if (speaker.id != null && userType != UserType.SUPERACCESS) {
+            if (!speaker.id.isNullOrEmpty() && userType != UserType.SUPERACCESS) {
                 throw ForbiddenRequest("No id allowed on speaker")
             }
-            createdSpeakers.add(speaker.addToDb(sessionId,conferenceId,speaker.id))
+            createdSpeakers.add(speaker.addToDb(sessionId,conferenceId,if (speaker.id.isNullOrEmpty()) null else speaker.id))
         }
 
         if (id != null && SessionStatus.publcStatuses.contains(sessionStatus)) {
