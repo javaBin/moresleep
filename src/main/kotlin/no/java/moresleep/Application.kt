@@ -27,7 +27,7 @@ private fun setupAndStartServer(args: Array<String>) {
     Setup.loadFromFile(args)
     Database.migrateWithFlyway(null,null)
     PopulateWorker.populateAll()
-    val server = Server(8082)
+    val server = Server(Setup.readValue(SetupValue.SERVER_PORT).toInt())
 
     server.handler = createHandler()
     server.start()

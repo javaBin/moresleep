@@ -1,0 +1,11 @@
+branch-defaults:
+  master:
+    environment: moresleep-prod
+global:
+  application_name: moresleep
+  default_ec2_keyname: javabin
+  default_region: eu-central-1
+  profile: javabin
+  sc: git
+deploy:
+  artifact: app.zip
