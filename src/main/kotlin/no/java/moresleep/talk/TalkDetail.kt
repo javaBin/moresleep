@@ -1,6 +1,7 @@
 package no.java.moresleep.talk
 
 import no.java.moresleep.ServiceResult
+import java.time.LocalDateTime
 
 class TalkDetail(
     val id:String,
@@ -10,8 +11,9 @@ class TalkDetail(
     val status:SessionStatus,
     val speakers:List<Speaker>,
     val lastUpdated:String,
-    val sessionUpdates:SessionUpdates = SessionUpdates(null,
-    emptyList())) : ServiceResult() {
+    val sessionUpdates:SessionUpdates = SessionUpdates(null, emptyList()),
+    private val created:LocalDateTime,
+) : ServiceResult() {
 
     val sessionId = id
 
@@ -28,7 +30,12 @@ class TalkDetail(
             name = it.name,
             email = it.email,
             data = fromDataObject(it.data)
-        ) }
-
+        ) },
+        created = talkInDb.created
     )
+
+    companion object {
+        val myComperator:Comparator<TalkDetail> =
+            Comparator { o1, o2 -> o1.created.compareTo(o2.created) }
+    }
 }

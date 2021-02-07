@@ -25,7 +25,8 @@ class TalkInDb(
     val data: JsonObject,
     val lastUpdated:LocalDateTime,
     val publicdata:JsonObject?,
-    val publishedAt:LocalDateTime?
+    val publishedAt:LocalDateTime?,
+    val created:LocalDateTime,
     ) {
     constructor(rs:ResultSet):this(
             id = rs.requiredString("id"),
@@ -35,7 +36,8 @@ class TalkInDb(
             postedBy = rs.getString("postedby"),
             lastUpdated = rs.requiredLocalDateTime("lastupdated"),
             publicdata = rs.getString("publicdata")?.let { JsonObject.parse(it) },
-            publishedAt = rs.getLocalDateTime("publishedAt")
+            publishedAt = rs.getLocalDateTime("publishedAt"),
+            created = rs.requiredLocalDateTime("created"),
     )
 
     val dataMap:Map<String,DataValue> = fromDataObject(data)
@@ -45,7 +47,7 @@ class PublicTalkInDb(val content:JsonObject,val lastModified:LocalDateTime)
 
 object TalkRepo {
     fun addNewTalk(talkid:String,conferenceid:String,status: SessionStatus,postedBy:String?,data:JsonObject,lastUpdated: LocalDateTime, publicdata:JsonObject?,publishedAt:LocalDateTime?) {
-        ServiceExecutor.connection().preparedStatement("insert into talk(id,conferenceid,data,status,lastupdated,postedby,publicdata,publishedat) values (?,?,?,?,?,?,?,?)") {
+        ServiceExecutor.connection().preparedStatement("insert into talk(id,conferenceid,data,status,lastupdated,postedby,publicdata,publishedat,created) values (?,?,?,?,?,?,?,?,?)") {
             it.setString(1,talkid)
             it.setString(2,conferenceid)
             it.setString(3,data.toJson())
@@ -54,6 +56,7 @@ object TalkRepo {
             it.setString(6,postedBy)
             it.setString(7,publicdata?.toJson())
             it.setTimestamp(8,publishedAt)
+            it.setTimestamp(9, LocalDateTime.now())
             it.executeUpdate()
         }
     }

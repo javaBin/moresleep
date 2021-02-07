@@ -17,7 +17,8 @@ class ReadAllTalks:Command {
             val speakers = allSpeakersInDb.filter { it.talkId == talkInDb.id }
             TalkDetail(talkInDb,speakers)
         }
-        return AllTalks(sessions)
+        val sortedSessions = sessions.sortedWith(TalkDetail.myComperator)
+        return AllTalks(sortedSessions)
     }
 
     override val requiredAccess: UserType = UserType.READ_ONLY
