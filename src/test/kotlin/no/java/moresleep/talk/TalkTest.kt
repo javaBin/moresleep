@@ -133,6 +133,9 @@ class TalkTest:BaseTestClass() {
         val talksBySubmitter = ReadTalksBySubmitter().execute(UserType.FULLACCESS, mapOf(Pair("email","luke@java.no")))
         assertThat(talksBySubmitter.sessions).hasSize(2)
 
+        val talksByPoster = ReadTalksBySubmitter().execute(UserType.FULLACCESS, mapOf(Pair("email","anders@java.no")))
+        assertThat(talksByPoster.sessions).hasSize(2)
+
     }
 
     @Test

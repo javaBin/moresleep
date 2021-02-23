@@ -72,9 +72,10 @@ object TalkRepo {
     }
 
     fun allTalksForEmailAddress(email:String):List<TalkInDb> = ServiceExecutor.connection().preparedStatement(
-        """select t.* from talk t, speaker s where s.email = ? and s.talkid = t.id"""
+        """select distinct t.* from talk t, speaker s where s.talkid = t.id and (s.email = ? or t.postedby = ?)"""
     ) { statement ->
         statement.setString(1,email)
+        statement.setString(2,email)
         statement.allFromQuery {
             TalkInDb(it)
         }
