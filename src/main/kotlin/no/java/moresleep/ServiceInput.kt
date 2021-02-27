@@ -32,6 +32,8 @@ enum class HttpMethod {
                         Pair("/public/allSessions",ReadAllConferences::class),
                         Pair("/data/session/:id",ReadOneTalk::class),
                         Pair("/data/conference/:conferenceId/session",ReadAllTalks::class),
+                        Pair("/data/conference/:conferenceId/substatistics", TalkSubmissionStatistics::class),
+
                         Pair("/data/submitter/:email/session",ReadTalksBySubmitter::class),
                         Pair("/public/allSessions/:slug",ReadAllPublicTalks::class),
                         Pair("/public/conference/:id/session",ReadAllPublicTalks::class),
