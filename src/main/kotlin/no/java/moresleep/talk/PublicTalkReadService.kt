@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 import javax.servlet.http.HttpServletResponse
 
-class AllPublicTalks(allTalks: JsonArray,val lastModified:LocalDateTime): ServiceResult() {
+class AllPublicTalks constructor(allTalks: JsonArray,val lastModified:LocalDateTime): ServiceResult() {
     val readAt:LocalDateTime = LocalDateTime.now()
 
     private val cachedResult = JsonObject().put("sessions",allTalks)

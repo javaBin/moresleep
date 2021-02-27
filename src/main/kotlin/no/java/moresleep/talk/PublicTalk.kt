@@ -13,7 +13,23 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
-private fun toPublicMap(dataMap:Map<String,DataValue>):Map<String,String> {
+private fun toPublicMap(talkInDb: TalkInDb):Map<String,String> {
+    val res = toPublicMap(talkInDb.dataMap)
+    res["startTime"]?.let {
+        res["startTimeZulu"] = toZuluTimeString(it)
+    }
+    res["endTime"]?.let {
+        res["endTimeZulu"] = toZuluTimeString(it)
+    }
+    res["id"] = talkInDb.id;
+    res["sessionId"] = talkInDb.id
+    res["conferenceId"] = talkInDb.conferenceid
+
+    return res
+
+}
+
+private fun toPublicMap(dataMap:Map<String,DataValue>):MutableMap<String,String> {
     val res:MutableMap<String,String> = mutableMapOf()
     for (entry in dataMap.entries) {
         if (entry.value.privateData || entry.value.value !is JsonString) {
@@ -24,12 +40,6 @@ private fun toPublicMap(dataMap:Map<String,DataValue>):Map<String,String> {
             continue
         }
         res[entry.key] = value.stringValue()
-    }
-    res["startTime"]?.let {
-        res["startTimeZulu"] = toZuluTimeString(it)
-    }
-    res["endTime"]?.let {
-        res["endTimeZulu"] = toZuluTimeString(it)
     }
 
     return res
@@ -81,7 +91,7 @@ class PublicTalk :OverridesJsonGenerator {
 
 
     constructor(talkInDb: TalkInDb,speakersInDb:List<SpeakerInDb>) {
-        dataValues = toPublicMap(talkInDb.dataMap)
+        dataValues = toPublicMap(talkInDb)
         speakers = speakersInDb.map { PublicSpeaker(it) }
     }
 
