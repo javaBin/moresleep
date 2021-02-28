@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
-private class MyDbConnection(val connection: Connection):DbConnection {
+private class MyDbConnection constructor(val connection: Connection):DbConnection {
 
     override fun <T> preparedStatement(sql: String, dbcommand: (PreparedStatement) -> T): T {
         return connection.prepareStatement(sql).use(dbcommand)
@@ -142,17 +142,24 @@ object ServiceExecutor {
         response.writer.append(result.asJsonObject().toJson())
     }
 
-    @Synchronized fun createConnection():DbConnection {
-        val threadId = Thread.currentThread().id
-        connectionsUsed[threadId]?.let { throw MoresleepInternalError("Transaction error. Connection already open") }
+    @Synchronized fun createConnection(connectionCreator:(()->Connection)={
         val connection = Database.connection()
         connection.autoCommit = false
+        connection
+    }):DbConnection {
+        val threadId = Thread.currentThread().id
+        connectionsUsed[threadId]?.let { throw MoresleepInternalError("Transaction error. Connection already open") }
+        val connection = connectionCreator.invoke()
         val dbConnection = MyDbConnection(connection)
         connectionsUsed[threadId] = dbConnection
         return dbConnection
     }
 
+
+
     fun connection():DbConnection = connectionsUsed[Thread.currentThread().id]?:throw MoresleepInternalError("No found connection")
+
+    fun hasConnection():Boolean = (connectionsUsed[Thread.currentThread().id] != null)
 
     fun commit() {
         connectionsUsed[Thread.currentThread().id]?.connection?.commit()
@@ -160,6 +167,12 @@ object ServiceExecutor {
 
     fun rollback() {
         connectionsUsed[Thread.currentThread().id]?.connection?.rollback()
+    }
+
+    fun removeConnection() {
+        val threadId = Thread.currentThread().id
+        val dbconnection = connectionsUsed.remove(threadId)?:throw MoresleepInternalError("Transaction Connection not found")
+        dbconnection.connection.rollback()
     }
 
     fun closeConnection() {
