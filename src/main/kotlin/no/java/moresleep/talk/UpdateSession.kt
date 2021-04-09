@@ -23,7 +23,7 @@ class UpdateSession(val data: Map<String,DataValue>?=null,val speakers:List<Spea
             val exsistingSpeakers = SpeakerRepo.speakersOnTalk(id)
             val createdSpeakers:MutableList<Speaker> = mutableListOf()
             for (speaker:SpeakerUpdate in speakers) {
-                if (speaker.id != null) {
+                if (speaker.id != null && speaker.id.trim().isNotEmpty()) {
                     val exsisting:SpeakerInDb = exsistingSpeakers.firstOrNull { it.id == speaker.id}?:throw BadRequest("Unknown speaker ${speaker.id}")
                     val newName = speaker.name?:exsisting.name
                     val newEmail = speaker.email?:exsisting.email
