@@ -84,6 +84,30 @@ class TalkTest:BaseTestClass() {
     }
 
     @Test
+    fun addASpeakerToATalk() {
+        val conferenceid = CreateNewConference(name = "JavaZone 2021", slug = "javazone2021").execute(UserType.FULLACCESS, emptyMap()).id
+
+        val talkDetail:TalkDetail = CreateNewSession(
+            postedBy = "anders@java.no",
+            status = SessionStatus.SUBMITTED.toString(),
+            data = baseTalkDataTestset,
+            speakers = listOf(SpeakerUpdate(name = "Luke Skywalker", email = "luke@java.no", data = baseSpeakerDataTestset))
+        ).execute(UserType.FULLACCESS, mapOf(Pair("conferenceId",conferenceid)))
+
+        val lukeid = talkDetail.speakers.first { it.name ==  "Luke Skywalker"}.id
+
+        val updatedTalk = UpdateSession(speakers = listOf(
+            SpeakerUpdate(id = lukeid),
+            SpeakerUpdate(name = "Darth Vader", email = "darth@java.no", data = baseSpeakerDataTestset)
+        )).execute(UserType.FULLACCESS, mapOf(Pair("id",talkDetail.id)))
+
+        assertThat(updatedTalk.speakers).hasSize(2)
+
+
+
+    }
+
+    @Test
     fun shouldDeleteSpeaker() {
         val conferenceid = CreateNewConference(name = "JavaZone 2021", slug = "javazone2021").execute(UserType.FULLACCESS, emptyMap()).id
 

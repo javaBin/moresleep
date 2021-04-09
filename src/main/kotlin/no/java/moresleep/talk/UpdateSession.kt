@@ -21,6 +21,7 @@ class UpdateSession(val data: Map<String,DataValue>?=null,val speakers:List<Spea
         TalkRepo.updateTalk(id,talkInDb.data,talkInDb.status)
         if (speakers != null) {
             val exsistingSpeakers = SpeakerRepo.speakersOnTalk(id)
+            val createdSpeakers:MutableList<Speaker> = mutableListOf()
             for (speaker:SpeakerUpdate in speakers) {
                 if (speaker.id != null) {
                     val exsisting:SpeakerInDb = exsistingSpeakers.firstOrNull { it.id == speaker.id}?:throw BadRequest("Unknown speaker ${speaker.id}")
@@ -29,6 +30,8 @@ class UpdateSession(val data: Map<String,DataValue>?=null,val speakers:List<Spea
                     val newData:JsonObject = exsisting.data
                     updateDataObject(speaker.data,newData)
                     SpeakerRepo.updateSpeaker(speaker.id,newName,newEmail,newData)
+                } else {
+                    createdSpeakers.add(speaker.addToDb(talkInDb.id,talkInDb.conferenceid,null))
                 }
             }
             for (exsisting in exsistingSpeakers) {
