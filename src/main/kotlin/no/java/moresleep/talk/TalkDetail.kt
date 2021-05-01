@@ -1,7 +1,36 @@
 package no.java.moresleep.talk
 
 import no.java.moresleep.ServiceResult
+import org.jsonbuddy.JsonArray
+import org.jsonbuddy.JsonObject
 import java.time.LocalDateTime
+
+private fun stripAuthorTags(original:Map<String,DataValue>,stripAuthorTags: Boolean):Map<String,DataValue> {
+    if (!stripAuthorTags) {
+        return original;
+    }
+    val newVer = original.toMutableMap()
+
+    val removed = newVer.remove("tagswithauthor")
+
+    val tagsWithAuthor = removed?.value as? JsonArray
+
+    if (tagsWithAuthor?.isEmpty != false) {
+        return original
+    }
+
+
+    val tagsarray:JsonArray = newVer.remove("tags")?.value as? JsonArray?:JsonArray()
+    for (tagobj:JsonObject in tagsWithAuthor.objects { it }) {
+        val newTag = (tagobj.stringValue("tag").orElse(null))?:continue
+        if (tagsarray.strings().contains(newTag)) {
+            continue
+        }
+        tagsarray.add(newTag)
+    }
+    newVer.put("tags",DataValue(privateData = true,value = tagsarray))
+    return newVer;
+}
 
 class TalkDetail(
     val id:String,
@@ -17,11 +46,11 @@ class TalkDetail(
 
     val sessionId = id
 
-    constructor(talkInDb: TalkInDb,speakers:List<SpeakerInDb>):this(
+    constructor(talkInDb: TalkInDb,speakers:List<SpeakerInDb>,stripAuthorTags:Boolean=false):this(
         id = talkInDb.id,
         conferenceId = talkInDb.conferenceid,
         postedBy = talkInDb.postedBy,
-        data = talkInDb.dataMap,
+        data = stripAuthorTags(talkInDb.dataMap,stripAuthorTags),
         status = talkInDb.status,
         lastUpdated = talkInDb.lastUpdated.toString(),
         sessionUpdates = SessionUpdates(talkInDb,speakers),

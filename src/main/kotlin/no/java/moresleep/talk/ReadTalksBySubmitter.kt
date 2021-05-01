@@ -10,7 +10,7 @@ class ReadTalksBySubmitter:Command {
         val talksDbBySpeaker = TalkRepo.allTalksForEmailAddress(email)
         val talksBySpeaker:List<TalkDetail> = talksDbBySpeaker.map {
             val speakers = SpeakerRepo.speakersOnTalk(it.id)
-            TalkDetail(it,speakers)
+            TalkDetail(it,speakers,true)
         }
         return AllTalks(talksBySpeaker)
     }
