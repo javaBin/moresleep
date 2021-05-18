@@ -6,6 +6,16 @@ import no.java.moresleep.conference.ReadConfigCommand
 import no.java.moresleep.talk.*
 import kotlin.reflect.KClass
 
+class SystemUser(val userType:UserType, val systemId: SystemId,val basicAuthAccessDev:String?=null)
+
+enum class SystemId {
+    UNKNOWN,
+    MORESLEEP_WORKER,
+    MORESLEEP_ADMIN,
+    ANONYMOUS,
+    READ_ONLY_SYSTEM
+}
+
 enum class UserType {
     ANONYMOUS,
     READ_ONLY,

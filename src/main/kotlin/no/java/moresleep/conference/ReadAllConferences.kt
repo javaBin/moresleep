@@ -16,7 +16,7 @@ class Conference(val id:String,val name:String,val slug:String) {
 class ReadAllConferencesResult(val conferences:List<Conference>):ServiceResult()
 
 class ReadAllConferences: Command, AllowAllOrigins {
-    override fun execute(userType: UserType, parameters: Map<String, String>): ReadAllConferencesResult {
+    override fun execute(systemUser: SystemUser, parameters: Map<String, String>): ReadAllConferencesResult {
         val allConferences = ConferenceRepo.allConferences()
         return ReadAllConferencesResult(allConferences)
     }

@@ -15,7 +15,7 @@ fun main(args: Array<String>) {
     Database.migrateWithFlyway(null,null)
     val conferenceId = args[1]
     val allTalks:AllTalks = ServiceExecutor.createConnection().use {
-        ReadAllTalks().execute(UserType.READ_ONLY, mapOf(Pair("conferenceId", conferenceId)))
+        ReadAllTalks().execute(SystemUser(UserType.READ_ONLY,SystemId.READ_ONLY_SYSTEM), mapOf(Pair("conferenceId", conferenceId)))
     }
     val conn = PopulateWorker.openConnectionToSleepingpill("${Setup.readValue(SetupValue.SLEEPING_PILL_ADDR)}/data/conference/$conferenceId/session")
     val sleepingpillobj = JsonObject.read(conn)

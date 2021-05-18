@@ -1,15 +1,12 @@
 package no.java.moresleep.talk
 
-import no.java.moresleep.BadRequest
-import no.java.moresleep.Command
-import no.java.moresleep.RequestError
-import no.java.moresleep.UserType
+import no.java.moresleep.*
 import org.jsonbuddy.JsonObject
 import org.jsonbuddy.pojo.JsonGenerator
 import javax.servlet.http.HttpServletResponse
 
 class UpdateSession(val data: Map<String,DataValue>?=null,val speakers:List<SpeakerUpdate>?=null,val lastUpdated:String?=null):Command {
-    override fun execute(userType: UserType, parameters: Map<String, String>): TalkDetail {
+    override fun execute(systemUser: SystemUser, parameters: Map<String, String>): TalkDetail {
         val id = parameters["id"]?:throw BadRequest("Missing id")
         val talkInDb:TalkInDb = TalkRepo.aTalk(id)?:throw BadRequest("Unknown talk $id")
 
@@ -43,7 +40,7 @@ class UpdateSession(val data: Map<String,DataValue>?=null,val speakers:List<Spea
             }
         }
 
-        return ReadOneSession().execute(UserType.FULLACCESS,parameters)
+        return ReadOneSession().execute(systemUser,parameters)
     }
 
     private fun updateDataObject(

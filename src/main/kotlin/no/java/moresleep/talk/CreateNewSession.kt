@@ -22,11 +22,11 @@ fun toDataObject(data: Map<String,DataValue>?):JsonObject {
 
 
 class CreateNewSession(val data: Map<String,DataValue>?=null,val postedBy:String?=null,val status:String?=null,val speakers:List<SpeakerUpdate>?=null,val id:String?=null,val lastUpdated:String?=null) : Command {
-    override fun execute(userType: UserType, parameters: Map<String, String>): TalkDetail {
+    override fun execute(systemUser: SystemUser, parameters: Map<String, String>): TalkDetail {
         val conferenceId = parameters["conferenceId"]?:throw MoresleepInternalError("Missing parameter id")
         val conf = ConferenceRepo.oneConference(conferenceId)?:throw BadRequest("Unknown conference $conferenceId")
         val sessionStatus = if (status != null) SessionStatus.saveValue(status)?:throw BadRequest("Unknown status $status") else SessionStatus.DRAFT
-        if ((id != null || lastUpdated != null) && userType != UserType.SUPERACCESS) {
+        if ((id != null || lastUpdated != null) && systemUser.userType != UserType.SUPERACCESS) {
             throw ForbiddenRequest("No id or lastUpdated allowed")
         }
 
@@ -55,17 +55,17 @@ class CreateNewSession(val data: Map<String,DataValue>?=null,val postedBy:String
 
 
         for (speaker:SpeakerUpdate in speakers) {
-            if (!speaker.id.isNullOrEmpty() && userType != UserType.SUPERACCESS) {
+            if (!speaker.id.isNullOrEmpty() && systemUser.userType != UserType.SUPERACCESS) {
                 throw ForbiddenRequest("No id allowed on speaker")
             }
             createdSpeakers.add(speaker.addToDb(sessionId,conferenceId,if (speaker.id.isNullOrEmpty()) null else speaker.id))
         }
 
         if (id != null && SessionStatus.publcStatuses.contains(sessionStatus)) {
-            PublishTalk().execute(userType, mapOf(Pair("id",id)))
+            PublishTalk().execute(systemUser, mapOf(Pair("id",id)))
         }
 
-        return ReadOneTalk().execute(userType, mapOf(Pair("id",sessionId)))
+        return ReadOneTalk().execute(systemUser, mapOf(Pair("id",sessionId)))
 
 
     }

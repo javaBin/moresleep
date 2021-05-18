@@ -55,7 +55,8 @@ object PopulateWorker {
         for (spsession in sessions) {
             val createNewSession = PojoMapper.map(spsession,CreateNewSession::class.java)
             try {
-                createNewSession.execute(UserType.SUPERACCESS, mapOf("conferenceId" to conferenceId))
+                createNewSession.execute(
+                    SystemUser(UserType.SUPERACCESS,SystemId.MORESLEEP_WORKER), mapOf("conferenceId" to conferenceId))
                 ServiceExecutor.commit()
             } catch (br:BadRequest) {
                 ServiceExecutor.rollback()
@@ -73,7 +74,8 @@ object PopulateWorker {
 
     private fun addConference(sleepingPillConference:JsonObject) {
         val createNewConference:CreateNewConference = PojoMapper.map(sleepingPillConference,CreateNewConference::class.java)
-        createNewConference.execute(UserType.SUPERACCESS, emptyMap())
+        createNewConference.execute(
+            SystemUser(UserType.SUPERACCESS,SystemId.MORESLEEP_WORKER), emptyMap())
         ServiceExecutor.commit()
     }
 

@@ -1,9 +1,6 @@
 package no.java.moresleep.talk
 
-import no.java.moresleep.BadRequest
-import no.java.moresleep.Command
-import no.java.moresleep.ServiceResult
-import no.java.moresleep.UserType
+import no.java.moresleep.*
 import java.time.LocalDate
 
 class StatisticDay(val day:String,val total:Int)
@@ -11,7 +8,7 @@ class StatisticDay(val day:String,val total:Int)
 class TalkSubmissionReport(val days:List<StatisticDay>):ServiceResult()
 
 class TalkSubmissionStatistics:Command {
-    override fun execute(userType: UserType, parameters: Map<String, String>): TalkSubmissionReport {
+    override fun execute(systemUser: SystemUser, parameters: Map<String, String>): TalkSubmissionReport {
         val conferenceid:String = parameters["conferenceId"]?:throw BadRequest("Missing conferenceId")
         val talksForConference: List<TalkInDb> = TalkRepo.allTalksInForConference(conferenceid).sortedBy { it.created }
 

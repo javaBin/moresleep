@@ -7,14 +7,14 @@ class CreateConferenceResult(val id:String):ServiceResult()
 
 class CreateNewConference(val name:String?=null,val slug:String?=null,val id:String?=null):Command {
 
-    override fun execute(userType: UserType, parameters: Map<String, String>): CreateConferenceResult {
+    override fun execute(systemUser: SystemUser, parameters: Map<String, String>): CreateConferenceResult {
         if (name.isNullOrEmpty() || name.trim().isEmpty()) {
             throw BadRequest("Missing required value name")
         }
         if (slug.isNullOrEmpty() || slug.trim().isEmpty()) {
             throw BadRequest("Missing required value slug")
         }
-        if (id != null && userType != UserType.SUPERACCESS) {
+        if (id != null && systemUser.userType != UserType.SUPERACCESS) {
             throw ForbiddenRequest("No id allowed")
         }
         val id = ConferenceRepo.addNewConference(name,slug,id)

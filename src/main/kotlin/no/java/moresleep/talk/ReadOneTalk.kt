@@ -1,12 +1,9 @@
 package no.java.moresleep.talk
 
-import no.java.moresleep.BadRequest
-import no.java.moresleep.Command
-import no.java.moresleep.ServiceResult
-import no.java.moresleep.UserType
+import no.java.moresleep.*
 
 class ReadOneTalk : Command {
-    override fun execute(userType: UserType, parameters: Map<String, String>): TalkDetail {
+    override fun execute(systemUser: SystemUser, parameters: Map<String, String>): TalkDetail {
         val talkid = parameters["id"]
         val talkInDb:TalkInDb = talkid?.let { TalkRepo.aTalk(it) }?:throw BadRequest("Unknown talkid $talkid")
         val speakersInDb:List<SpeakerInDb> = SpeakerRepo.speakersOnTalk(talkid)

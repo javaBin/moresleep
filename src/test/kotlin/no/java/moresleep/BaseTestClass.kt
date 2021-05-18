@@ -68,6 +68,8 @@ private val flywaySchemaHistorySql = """
 
 abstract class BaseTestClass {
 
+    val testFullAccessUser:SystemUser = SystemUser(UserType.FULLACCESS,SystemId.UNKNOWN)
+    val testAnonUser = SystemUser(UserType.ANONYMOUS,SystemId.ANONYMOUS)
 
     @BeforeEach
     fun setup() {

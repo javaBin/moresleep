@@ -75,8 +75,33 @@ private fun credentialsWithBasicAuthentication(req: HttpServletRequest):Credenti
 object ServiceExecutor {
     private val connectionsUsed:ConcurrentHashMap<Long,MyDbConnection> = ConcurrentHashMap()
 
+    private val definedUsers:List<SystemUser> by lazy {
+        val basicAuthAccessDev = Setup.readValue(SetupValue.ALLACCESS_USER)
+        listOf(SystemUser(UserType.FULLACCESS,SystemId.UNKNOWN,basicAuthAccessDev))
+    }
+
+    private fun userFromCredentials(credetials:Credentials?):SystemUser {
+        if (Setup.readBoolValue(SetupValue.ALL_OPEN_MODE)) {
+            return SystemUser(UserType.FULLACCESS,SystemId.MORESLEEP_ADMIN)
+        }
+        if (credetials == null) {
+            return SystemUser(UserType.ANONYMOUS,SystemId.ANONYMOUS)
+        }
+        if (credetials.matches(Setup.readValue(SetupValue.READ_USER))) {
+            return SystemUser( UserType.READ_ONLY,SystemId.READ_ONLY_SYSTEM)
+        }
+
+        for (systemUser in definedUsers) {
+            if (systemUser.basicAuthAccessDev != null && credetials.matches(systemUser.basicAuthAccessDev)) {
+                return systemUser
+            }
+        }
+        throw ForbiddenRequest("Unknown authorization")
+
+    }
+
     fun doStuff(baseUrl:String,httpMethod: HttpMethod,request:HttpServletRequest,response: HttpServletResponse,
-                doExecutor:(Command,UserType,Map<String,String>)->ServiceResult = {
+                doExecutor:(Command,SystemUser,Map<String,String>)->ServiceResult = {
                     command,usertype,parameters ->
                     createConnection().use {
                         val res = command.execute(usertype, parameters)
@@ -108,26 +133,19 @@ object ServiceExecutor {
         }
 
         val credentials = credentialsWithBasicAuthentication(request)
-        val userType:UserType = when {
-            Setup.readBoolValue(SetupValue.ALL_OPEN_MODE) -> UserType.FULLACCESS
-            credentials?.matches(Setup.readValue(SetupValue.ALLACCESS_USER)) == true -> UserType.FULLACCESS
-            credentials?.matches(Setup.readValue(SetupValue.READ_USER)) == true -> UserType.READ_ONLY
-            credentials != null -> throw ForbiddenRequest("Unknown authorization")
-            else -> UserType.ANONYMOUS
-        }
-
+        val systemUser:SystemUser = userFromCredentials(credentials)
 
 
         val result:ServiceResult = try {
-            if (userType < command.requiredAccess) {
-                if (userType == UserType.ANONYMOUS) {
+            if (systemUser.userType < command.requiredAccess) {
+                if (systemUser.userType == UserType.ANONYMOUS) {
                     throw RequestError(HttpServletResponse.SC_UNAUTHORIZED,"Unauthorized")
                 } else {
                     throw ForbiddenRequest("Not required access")
                 }
             }
 
-            doExecutor(command,userType,pathMap.parameters)
+            doExecutor(command,systemUser,pathMap.parameters)
         } catch (reqestError:RequestError) {
             response.sendError(reqestError.httpError,reqestError.errormessage)
             return
