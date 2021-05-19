@@ -10,10 +10,12 @@ class SystemUser(val userType:UserType, val systemId: SystemId,val basicAuthAcce
 
 enum class SystemId {
     UNKNOWN,
+    SUBMITIT,
+    CAKE,
     MORESLEEP_WORKER,
     MORESLEEP_ADMIN,
     ANONYMOUS,
-    READ_ONLY_SYSTEM
+    READ_ONLY_SYSTEM,
 }
 
 enum class UserType {

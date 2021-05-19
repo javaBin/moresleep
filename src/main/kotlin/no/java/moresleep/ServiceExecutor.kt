@@ -77,7 +77,29 @@ object ServiceExecutor {
 
     private val definedUsers:List<SystemUser> by lazy {
         val basicAuthAccessDev = Setup.readValue(SetupValue.ALLACCESS_USER)
-        listOf(SystemUser(UserType.FULLACCESS,SystemId.UNKNOWN,basicAuthAccessDev))
+        if (basicAuthAccessDev.indexOf("=") == -1) {
+            listOf(SystemUser(UserType.FULLACCESS, SystemId.UNKNOWN, basicAuthAccessDev))
+        } else {
+            val result:MutableList<SystemUser> = mutableListOf()
+            var currindex=0
+            while (true) {
+                val eqpos = basicAuthAccessDev.indexOf("=",currindex)
+                if (eqpos == -1) {
+                    break
+                }
+                val systemId:SystemId = SystemId.valueOf(basicAuthAccessDev.substring(currindex,eqpos))
+
+                val nextpos = basicAuthAccessDev.indexOf(",",currindex)
+                val hasMore = (nextpos >= 0)
+                val accessString = if (hasMore) basicAuthAccessDev.substring(eqpos+1,nextpos) else basicAuthAccessDev.substring(eqpos+1)
+                result.add(SystemUser(UserType.FULLACCESS,systemId,accessString))
+                if (!hasMore) {
+                    break
+                }
+                currindex = nextpos+1
+            }
+            result
+        }
     }
 
     private fun userFromCredentials(credetials:Credentials?):SystemUser {
