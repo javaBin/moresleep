@@ -1,6 +1,7 @@
 package no.java.moresleep.talk
 
 import no.java.moresleep.ServiceResult
+import no.java.moresleep.SystemId
 import org.jsonbuddy.JsonArray
 import org.jsonbuddy.JsonObject
 import java.time.LocalDateTime
@@ -32,6 +33,7 @@ private fun stripAuthorTags(original:Map<String,DataValue>,stripAuthorTags: Bool
     return newVer;
 }
 
+
 class TalkDetail(
     val id:String,
     val conferenceId:String,
@@ -42,11 +44,12 @@ class TalkDetail(
     val lastUpdated:String,
     val sessionUpdates:SessionUpdates = SessionUpdates(null, emptyList()),
     private val created:LocalDateTime,
+    val talkUpdates: List<TalkUpdates>,
 ) : ServiceResult() {
 
     val sessionId = id
 
-    constructor(talkInDb: TalkInDb,speakers:List<SpeakerInDb>,stripAuthorTags:Boolean=false):this(
+    constructor(talkInDb: TalkInDb,speakers:List<SpeakerInDb>,talkUpdates: List<TalkUpdates>, stripAuthorTags:Boolean=false):this(
         id = talkInDb.id,
         conferenceId = talkInDb.conferenceid,
         postedBy = talkInDb.postedBy,
@@ -60,7 +63,8 @@ class TalkDetail(
             email = it.email,
             data = fromDataObject(it.data)
         ) },
-        created = talkInDb.created
+        created = talkInDb.created,
+        talkUpdates = talkUpdates
     )
 
     companion object {

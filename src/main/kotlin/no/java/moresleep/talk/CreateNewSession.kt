@@ -65,6 +65,8 @@ class CreateNewSession(val data: Map<String,DataValue>?=null,val postedBy:String
             PublishTalk().execute(systemUser, mapOf(Pair("id",id)))
         }
 
+        TalkRepo.registerTalkUpdate(sessionId,conf.id,systemUser.systemId)
+
         return ReadOneTalk().execute(systemUser, mapOf(Pair("id",sessionId)))
 
 

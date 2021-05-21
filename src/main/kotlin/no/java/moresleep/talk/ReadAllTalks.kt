@@ -9,10 +9,12 @@ class ReadAllTalks:Command {
         val conferenceid:String = parameters["conferenceId"]?:throw BadRequest("Missing conferenceid")
         val allTalksInDb:List<TalkInDb> = TalkRepo.allTalksInForConference(conferenceid)
         val allSpeakersInDb:List<SpeakerInDb> = SpeakerRepo.allSpeakersInConference(conferenceid)
+        val allTalkUpdates:List<TalkUpdates> = TalkRepo.talkUpdatesOnConference(conferenceid)
 
         val sessions:List<TalkDetail> = allTalksInDb.map { talkInDb ->
             val speakers = allSpeakersInDb.filter { it.talkId == talkInDb.id }
-            TalkDetail(talkInDb,speakers)
+            val updates = allTalkUpdates.filter { it.talkid == talkInDb.id }
+            TalkDetail(talkInDb,speakers,updates)
         }
         val sortedSessions = sessions.sortedWith(TalkDetail.myComperator)
         return AllTalks(sortedSessions)

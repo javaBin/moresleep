@@ -7,7 +7,10 @@ class ReadOneSession : Command {
         val id = parameters["id"]?:throw BadRequest("Missing id")
         val talkinDb:TalkInDb = TalkRepo.aTalk(id)?:throw BadRequest("Unknown talk $id")
         val speakerInDb:List<SpeakerInDb> = SpeakerRepo.speakersOnTalk(id)
-        return TalkDetail(talkinDb,speakerInDb)
+
+        val updatesOnTalk = TalkRepo.updatesOnTalk(talkinDb.id)
+
+        return TalkDetail(talkinDb,speakerInDb,updatesOnTalk)
     }
 
     override val requiredAccess: UserType = UserType.READ_ONLY

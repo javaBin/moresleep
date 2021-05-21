@@ -39,6 +39,7 @@ class UpdateSession(val data: Map<String,DataValue>?=null,val speakers:List<Spea
 
             }
         }
+        TalkRepo.registerTalkUpdate(talkInDb.id,talkInDb.conferenceid,systemUser.systemId)
 
         return ReadOneSession().execute(systemUser,parameters)
     }

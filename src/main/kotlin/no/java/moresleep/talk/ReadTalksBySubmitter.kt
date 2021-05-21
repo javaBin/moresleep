@@ -11,7 +11,8 @@ class ReadTalksBySubmitter:Command {
         val talksDbBySpeaker = TalkRepo.allTalksForEmailAddress(email)
         val talksBySpeaker:List<TalkDetail> = talksDbBySpeaker.map {
             val speakers = SpeakerRepo.speakersOnTalk(it.id)
-            TalkDetail(it,speakers,true)
+            val updates = TalkRepo.updatesOnTalk(it.id)
+            TalkDetail(it,speakers,updates,true)
         }
         return AllTalks(talksBySpeaker)
     }

@@ -45,6 +45,19 @@ class TalkInDb(
 
 class PublicTalkInDb(val content:JsonObject,val lastModified:LocalDateTime)
 
+class TalkUpdates(
+    val talkid: String,
+    val updatedBy: String,
+    val updatedAt:String
+) {
+    constructor(resultSet: ResultSet):this(
+        updatedBy = SystemId.valueOf(resultSet.requiredString("updatedby")).name,
+        updatedAt = resultSet.requiredLocalDateTime("updatedat").toString(),
+        talkid = resultSet.requiredString("talkid")
+        )
+}
+
+
 object TalkRepo {
     fun addNewTalk(talkid:String,conferenceid:String,status: SessionStatus,postedBy:String?,data:JsonObject,lastUpdated: LocalDateTime, publicdata:JsonObject?,publishedAt:LocalDateTime?) {
         ServiceExecutor.connection().preparedStatement("insert into talk(id,conferenceid,data,status,lastupdated,postedby,publicdata,publishedat,created) values (?,?,?,?,?,?,?,?,?)") {
@@ -108,6 +121,26 @@ object TalkRepo {
         statement.allFromQuery {
             PublicTalkInDb(JsonObject.parse(it.requiredString("publicdata")),it.requiredLocalDateTime("publishedAt"))
         }
+    }
+
+    fun registerTalkUpdate(talkid: String,conferenceid: String,systemId: SystemId) {
+        ServiceExecutor.connection().preparedStatement("insert into talkupdate(talkid,conferenceid, updatedby, updatedat) values (?,?,?,?)") { statement ->
+            statement.setString(1,talkid)
+            statement.setString(2,conferenceid)
+            statement.setString(3,systemId.name)
+            statement.setTimestamp(4,LocalDateTime.now())
+            statement.executeUpdate()
+        }
+    }
+
+    fun updatesOnTalk(talkid:String):List<TalkUpdates> = ServiceExecutor.connection().preparedStatement("select * from talkupdate where talkid = ? order by updatedat") { statement ->
+        statement.setString(1,talkid)
+        statement.allFromQuery { TalkUpdates(it) }
+    }
+
+    fun talkUpdatesOnConference(conferenceid: String) = ServiceExecutor.connection().preparedStatement("select * from talkupdate where conferenceid = ? order by updatedat") { statement ->
+        statement.setString(1,conferenceid)
+        statement.allFromQuery { TalkUpdates(it) }
     }
 
 }

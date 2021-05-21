@@ -53,6 +53,8 @@ class TalkTest:BaseTestClass() {
         assertThat(updatedTalk.data["abstract"]?.value).isEqualTo(JsonString("Updated abstract"))
         assertThat(updatedTalk.data["outline"]?.privateData).isTrue()
         assertThat(updatedTalk.data["outline"]?.value).isEqualTo(JsonString("This is an outline"))
+
+        assertThat(TalkRepo.updatesOnTalk(talkid)).hasSize(2)
     }
 
     private val darthAndLukeSpeakers = listOf(
