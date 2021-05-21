@@ -154,11 +154,11 @@ object ServiceExecutor {
             throw BadRequest("Invalid input")
         }
 
-        val credentials = credentialsWithBasicAuthentication(request)
-        val systemUser:SystemUser = userFromCredentials(credentials)
-
-
         val result:ServiceResult = try {
+            val credentials = credentialsWithBasicAuthentication(request)
+            val systemUser:SystemUser = userFromCredentials(credentials)
+
+
             if (systemUser.userType < command.requiredAccess) {
                 if (systemUser.userType == UserType.ANONYMOUS) {
                     throw RequestError(HttpServletResponse.SC_UNAUTHORIZED,"Unauthorized")
