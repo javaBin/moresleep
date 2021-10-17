@@ -14,4 +14,6 @@ enum class SessionStatus {
 
         val publcStatuses = setOf(APPROVED,HISTORIC)
     }
+
+    val isPublicStatus:Boolean by lazy { publcStatuses.contains(this) }
 }

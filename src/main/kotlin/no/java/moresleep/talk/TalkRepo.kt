@@ -104,13 +104,24 @@ object TalkRepo {
         }
     }
 
-    fun publishTalk(talkid: String,publicData:JsonObject) {
+    fun publishTalk(talkid: String,publicData:JsonObject,sessionStatus: SessionStatus) {
         val now = LocalDateTime.now()
-        ServiceExecutor.connection().preparedStatement("update talk set publicdata = ?, lastupdated = ?, publishedat = ? where id = ?") {
+        ServiceExecutor.connection().preparedStatement("update talk set publicdata = ?, lastupdated = ?, publishedat = ?,status = ? where id = ?") {
             it.setString(1,publicData.toJson())
             it.setTimestamp(2,now)
             it.setTimestamp(3,now)
-            it.setString(4,talkid)
+            it.setString(4,sessionStatus.name)
+            it.setString(5,talkid)
+            it.executeUpdate()
+        }
+    }
+
+    fun unpublishTalk(talkid: String,sessionStatus: SessionStatus) {
+        val now = LocalDateTime.now()
+        ServiceExecutor.connection().preparedStatement("update talk set publicdata = null, lastupdated = ?, publishedat = null,status = ? where id = ?") {
+            it.setTimestamp(1,now)
+            it.setString(2,sessionStatus.name)
+            it.setString(3,talkid)
             it.executeUpdate()
         }
     }

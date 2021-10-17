@@ -5,7 +5,7 @@ import org.jsonbuddy.JsonObject
 import org.jsonbuddy.pojo.JsonGenerator
 import javax.servlet.http.HttpServletResponse
 
-class UpdateSession(val data: Map<String,DataValue>?=null,val speakers:List<SpeakerUpdate>?=null,val lastUpdated:String?=null):Command {
+class UpdateSession(val data: Map<String,DataValue>?=null,val speakers:List<SpeakerUpdate>?=null,val lastUpdated:String?=null,val status:SessionStatus?=null):Command {
     override fun execute(systemUser: SystemUser, parameters: Map<String, String>): TalkDetail {
         val id = parameters["id"]?:throw BadRequest("Missing id")
         val talkInDb:TalkInDb = TalkRepo.aTalk(id)?:throw BadRequest("Unknown talk $id")
@@ -15,7 +15,8 @@ class UpdateSession(val data: Map<String,DataValue>?=null,val speakers:List<Spea
         }
 
         updateDataObject(data, talkInDb.data)
-        TalkRepo.updateTalk(id,talkInDb.data,talkInDb.status)
+
+        TalkRepo.updateTalk(id,talkInDb.data,status?:talkInDb.status)
         if (speakers != null) {
             val exsistingSpeakers = SpeakerRepo.speakersOnTalk(id)
             val createdSpeakers:MutableList<Speaker> = mutableListOf()
@@ -37,6 +38,14 @@ class UpdateSession(val data: Map<String,DataValue>?=null,val speakers:List<Spea
                 }
                 SpeakerRepo.deleteSpeaker(exsisting.id)
 
+            }
+        }
+        if (status != null && status != talkInDb.status) {
+            if (status.isPublicStatus && !talkInDb.status.isPublicStatus) {
+                PublishTalk.doPublish(talkInDb.id,status)
+            }
+            if (!status.isPublicStatus && talkInDb.status.isPublicStatus) {
+                TalkRepo.unpublishTalk(talkInDb.id,status)
             }
         }
         TalkRepo.registerTalkUpdate(talkInDb.id,talkInDb.conferenceid,systemUser.systemId)

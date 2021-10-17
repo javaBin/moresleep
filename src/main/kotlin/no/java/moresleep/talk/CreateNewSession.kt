@@ -62,7 +62,7 @@ class CreateNewSession(val data: Map<String,DataValue>?=null,val postedBy:String
         }
 
         if (id != null && SessionStatus.publcStatuses.contains(sessionStatus)) {
-            PublishTalk().execute(systemUser, mapOf(Pair("id",id)))
+            PublishTalk.doPublish(id,sessionStatus)
         }
 
         TalkRepo.registerTalkUpdate(sessionId,conf.id,systemUser.systemId)

@@ -176,7 +176,7 @@ class TalkTest:BaseTestClass() {
 
         assertThat(talkDetail.sessionUpdates.hasUnpublishedChanges).isFalse()
 
-        PublishTalk().execute(testFullAccessUser, mapOf(Pair("id",talkDetail.id)))
+        PublishTalk.doPublish(talkDetail.id,SessionStatus.APPROVED)
         val updatedTalk:TalkDetail = UpdateSession(mapOf(Pair("abstract",DataValue(false,JsonString("Updated abstract")))))
             .execute(testFullAccessUser, mapOf(Pair("id",talkDetail.id)))
 
@@ -199,7 +199,25 @@ class TalkTest:BaseTestClass() {
             assertThat(e.httpError).isEqualTo(HttpServletResponse.SC_PRECONDITION_FAILED)
         }
 
+    }
 
+    @Test
+    fun publishFromCake() {
+        val conferenceid = CreateNewConference(name = "JavaZone 2021", slug = "javazone2021").execute(testFullAccessUser, emptyMap()).id
+
+        val talkDetail:TalkDetail = CreateNewSession(
+            postedBy = "anders@java.no",
+            status = SessionStatus.SUBMITTED.toString(),
+            data = baseTalkDataTestset,
+            speakers = darthAndLukeSpeakers
+        ).execute(testFullAccessUser, mapOf(Pair("conferenceId",conferenceid)))
+
+        UpdateSession(status = SessionStatus.APPROVED).execute(testFullAccessUser, mapOf(Pair("id",talkDetail.id)))
+
+        val allPublicTalks:AllPublicTalks = ReadAllPublicTalks().execute(testAnonUser, mapOf(Pair("slug","javazone2021")))
+        assertThat(allPublicTalks.asJsonObject().requiredArray("sessions")).hasSize(1)
 
     }
+
+
 }
