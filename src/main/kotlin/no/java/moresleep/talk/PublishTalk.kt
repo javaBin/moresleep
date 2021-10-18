@@ -2,8 +2,6 @@ package no.java.moresleep.talk
 
 import no.java.moresleep.*
 
-class OkWithIdResult(val sessionId:String):ServiceResult()
-
 object PublishTalk {
 
     fun doPublish(talkid:String,sessionStatus: SessionStatus) {

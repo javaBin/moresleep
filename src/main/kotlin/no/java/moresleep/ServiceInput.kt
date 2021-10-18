@@ -35,6 +35,8 @@ enum class HttpMethod {
             POST -> listOf(
                         Pair("/data/conference",CreateNewConference::class),
                         Pair("/data/conference/:conferenceId/session",CreateNewSession::class),
+                        Pair("/data/session/:id/publish",PublishUpdates::class),
+
 
                 )
 
