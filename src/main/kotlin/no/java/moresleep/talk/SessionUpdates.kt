@@ -12,7 +12,6 @@ class SessionUpdates(talkInDb: TalkInDb?,speakers:List<SpeakerInDb>) {
             oldValues = emptyList()
             hasUnpublishedChanges = false
         } else {
-            hasUnpublishedChanges = true
 
             val currentVersion = PublicTalk(talkInDb,speakers)
             val previousVersion = PublicTalk(talkInDb.publicdata)
@@ -24,6 +23,7 @@ class SessionUpdates(talkInDb: TalkInDb?,speakers:List<SpeakerInDb>) {
                 }
             }
 
+            hasUnpublishedChanges = compOldValues.isNotEmpty()
             oldValues = compOldValues
         }
 
