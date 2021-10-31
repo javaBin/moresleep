@@ -47,7 +47,10 @@ class UpdateSession(val data: Map<String,DataValue>?=null,val speakers:List<Spea
             if (!status.isPublicStatus && talkInDb.status.isPublicStatus) {
                 TalkRepo.unpublishTalk(talkInDb.id,status)
             }
+        } else if (status?.isPublicStatus == true && talkInDb.status.isPublicStatus) {
+            PublishTalk.doPublish(talkInDb.id,status)
         }
+
         TalkRepo.registerTalkUpdate(talkInDb.id,talkInDb.conferenceid,systemUser.systemId)
 
         return ReadOneSession().execute(systemUser,parameters)

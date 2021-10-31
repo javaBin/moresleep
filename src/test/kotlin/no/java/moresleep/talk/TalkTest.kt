@@ -219,6 +219,42 @@ class TalkTest:BaseTestClass() {
     }
 
     @Test
+    fun republish() {
+        val conferenceid = CreateNewConference(name = "JavaZone 2021", slug = "javazone2021").execute(testFullAccessUser, emptyMap()).id
+
+        val talkDetail:TalkDetail = CreateNewSession(
+            postedBy = "anders@java.no",
+            status = SessionStatus.SUBMITTED.toString(),
+            data = baseTalkDataTestset,
+            speakers = darthAndLukeSpeakers
+        ).execute(testFullAccessUser, mapOf(Pair("conferenceId",conferenceid)))
+
+        UpdateSession(status = SessionStatus.APPROVED).execute(testFullAccessUser, mapOf(Pair("id",talkDetail.id)))
+
+        val startTime:LocalDateTime = LocalDateTime.of(2021,12,8,10,20)
+        val endTime:LocalDateTime = LocalDateTime.of(2021,12,8,11,20)
+        val data = mapOf(
+            Pair("startTime", DataValue(privateData = false, value = JsonString(startTime.toString()))),
+            Pair("length", DataValue(privateData = false, value = JsonString("60"))),
+            Pair("endTime", DataValue(privateData = false, value = JsonString(endTime.toString())))
+        )
+
+        UpdateSession(data = data).execute(testFullAccessUser, mapOf(Pair("id",talkDetail.id)))
+
+
+        val publicTalksFromConference:List<PublicTalkInDb> = TalkRepo.publicTalksFromConference(conferenceid)
+        assertThat(publicTalksFromConference).hasSize(1)
+        assertThat(publicTalksFromConference[0].content.value("startTime")).isEmpty()
+
+
+        UpdateSession(status = SessionStatus.APPROVED).execute(testFullAccessUser, mapOf(Pair("id",talkDetail.id)))
+
+        val publicTalksFromConferenceAfter:List<PublicTalkInDb> = TalkRepo.publicTalksFromConference(conferenceid)
+        assertThat(publicTalksFromConferenceAfter).hasSize(1)
+        assertThat(publicTalksFromConferenceAfter[0].content.value("startTime")).isNotEmpty()
+    }
+
+    @Test
     fun talkWithSlot() {
         val conferenceid = CreateNewConference(name = "JavaZone 2021", slug = "javazone2021").execute(testFullAccessUser, emptyMap()).id
         val startTime:LocalDateTime = LocalDateTime.of(2021,12,8,10,20)
