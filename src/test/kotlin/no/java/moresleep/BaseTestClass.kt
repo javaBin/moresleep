@@ -1,6 +1,8 @@
 package no.java.moresleep
 
+import no.java.moresleep.conference.ConferenceRepo
 import no.java.moresleep.talk.DataValue
+import no.java.moresleep.talk.PublicTalkReadService
 import org.flywaydb.core.Flyway
 import org.jsonbuddy.JsonObject
 import org.jsonbuddy.JsonString
@@ -73,17 +75,21 @@ abstract class BaseTestClass {
 
     @BeforeEach
     fun setup() {
-        val dataBaseType:DataBaseType = DataBaseType.SQLLITE
+        PublicTalkReadService.allConferences = { ConferenceRepo.allConferences() }
+        PublicTalkReadService.clearCache()
+
+
+        val dataBaseType:DataBaseType = DataBaseType.POSTGRES
 
         Setup.setValue(SetupValue.DATABASE_TYPE,dataBaseType.name)
-        Setup.setValue(SetupValue.DBUSER,if (dataBaseType == DataBaseType.POSTGRES) "localdbuser" else "")
-        Setup.setValue(SetupValue.DBPASSWORD,"")
+        Setup.setValue(SetupValue.DBUSER,if (dataBaseType == DataBaseType.POSTGRES) "localdevuser" else "")
+        Setup.setValue(SetupValue.DBPASSWORD,if (dataBaseType == DataBaseType.POSTGRES) "localdevuser" else "")
         Setup.setValue(SetupValue.DATASOURCENAME,"moresleepunit")
 
 
         val setup:Pair<((Flyway) -> Unit)?,((Connection)->Unit)?> = when(dataBaseType) {
             DataBaseType.POSTGRES -> Pair({it.clean()},null)
-            DataBaseType.SQLLITE -> Pair(null,null)
+            DataBaseType.SQLLITE -> Pair({it.clean()},null)
             DataBaseType.PGINMEM -> Pair(null,{
                 it.createStatement().execute(flywaySchemaHistorySql)
             })
@@ -100,5 +106,6 @@ abstract class BaseTestClass {
     @AfterEach
     fun teardown() {
         ServiceExecutor.closeConnection()
+        PublicTalkReadService.clearCache()
     }
 }

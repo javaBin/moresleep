@@ -9,7 +9,8 @@ object PublishTalk {
         val talkInDb = TalkRepo.aTalk(talkid) ?: throw BadRequest("Unknown talk $talkid")
         val speakersInDb:List<SpeakerInDb> = SpeakerRepo.speakersOnTalk(talkid)
         val publicTalk = PublicTalk(talkInDb,speakersInDb)
-        TalkRepo.publishTalk(talkid,publicTalk.jsonValue(),sessionStatus)
+        val publicData = publicTalk.jsonValue()
+        TalkRepo.publishTalk(talkid, publicData,sessionStatus)
     }
 
 

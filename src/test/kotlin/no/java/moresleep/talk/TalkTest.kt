@@ -278,11 +278,49 @@ class TalkTest:BaseTestClass() {
         val allPublicTalks:AllPublicTalks = ReadAllPublicTalks().execute(testAnonUser, mapOf(Pair("slug","javazone2021")))
         val talkobj:JsonObject = allPublicTalks.asJsonObject().requiredArray("sessions").get(0,JsonObject::class.java)
         assertThat(talkobj.requiredString("startTime")).isEqualTo("2021-12-08T10:20")
+        assertThat(talkobj.requiredString("startSlot")).isEqualTo("2021-12-08T10:20")
         assertThat(talkobj.requiredString("startTimeZulu")).isEqualTo("2021-12-08T09:20:00Z")
+        assertThat(talkobj.requiredString("startSlotZulu")).isEqualTo("2021-12-08T09:20:00Z")
         assertThat(talkobj.requiredString("endTime")).isEqualTo("2021-12-08T11:20")
         assertThat(talkobj.requiredString("endTimeZulu")).isEqualTo("2021-12-08T10:20:00Z")
 
 
+    }
+
+    @Test
+    fun talkWithStartSlot() {
+        val conferenceid = CreateNewConference(name = "JavaZone 2021", slug = "javazone2021").execute(testFullAccessUser, emptyMap()).id
+        val startTime:LocalDateTime = LocalDateTime.of(2021,12,8,10,30)
+        val endTime:LocalDateTime = LocalDateTime.of(2021,12,8,10,40)
+        val talkDetail:TalkDetail = CreateNewSession(
+            postedBy = "anders2@java.no",
+            status = SessionStatus.SUBMITTED.toString(),
+            data = mapOf(
+                Pair("title", DataValue(privateData = false, value = JsonString("My Light"))),
+                Pair("abstract", DataValue(privateData = false, value = JsonString("Here is the abstract"))),
+                Pair("outline", DataValue(privateData = true, value = JsonString("This is an outline"))),
+                Pair("startTime", DataValue(privateData = false, value = JsonString(startTime.toString()))),
+                Pair("length", DataValue(privateData = false, value = JsonString("10"))),
+                Pair("endTime", DataValue(privateData = false, value = JsonString(endTime.toString()))),
+            ),
+            speakers = darthAndLukeSpeakers
+        ).execute(testFullAccessUser, mapOf(Pair("conferenceId",conferenceid)))
+
+        PublishTalk.doPublish(talkDetail.id,SessionStatus.APPROVED)
+
+        PublicTalkReadService.clearCache()
+        val allPublicTalks:AllPublicTalks = ReadAllPublicTalks().execute(testAnonUser, mapOf(Pair("slug","javazone2021")))
+        val talkArr = allPublicTalks.asJsonObject().requiredArray("sessions")
+        assertThat(talkArr).hasSize(1)
+
+        val talkobj:JsonObject = talkArr.get(0,JsonObject::class.java)
+        assertThat(talkobj.requiredString("startTime")).isEqualTo("2021-12-08T10:30")
+        assertThat(talkobj.requiredString("startTimeZulu")).isEqualTo("2021-12-08T09:30:00Z")
+        assertThat(talkobj.requiredString("endTime")).isEqualTo("2021-12-08T10:40")
+        assertThat(talkobj.requiredString("endTimeZulu")).isEqualTo("2021-12-08T09:40:00Z")
+
+        assertThat(talkobj.requiredString("startSlot")).isEqualTo("2021-12-08T10:20")
+        assertThat(talkobj.requiredString("startSlotZulu")).isEqualTo("2021-12-08T09:20:00Z")
     }
 
 

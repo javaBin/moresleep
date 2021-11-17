@@ -27,15 +27,22 @@ class AllPublicTalks constructor(allTalks: JsonArray,val lastModified:LocalDateT
 object PublicTalkReadService {
     private val cachedResults:ConcurrentMap<String,AllPublicTalks> = ConcurrentHashMap()
 
-    private val allConferences:List<Conference> by lazy { ConferenceRepo.allConferences() }
+    fun clearCache() {
+        cachedResults.clear()
+    }
+
+    private val allConferencesInt:List<Conference> by lazy { ConferenceRepo.allConferences() }
+
+    var allConferences:()->List<Conference> = { allConferencesInt }
+
 
     fun readAllPublicTalksById(conferenceId:String,ifUnmodifiedSince:String?):AllPublicTalks {
-        val conference = allConferences.firstOrNull { it.id == conferenceId }?:throw BadRequest("Unknown conferenceid $conferenceId")
+        val conference = allConferences().firstOrNull { it.id == conferenceId }?:throw BadRequest("Unknown conferenceid $conferenceId")
         return allTalks(conference,ifUnmodifiedSince)
     }
 
     fun readAllPublicTalksBySlug(slug:String,ifUnmodifiedSince:String?):AllPublicTalks {
-        val conference = allConferences.firstOrNull { it.slug == slug }?:throw BadRequest("Unknown slug $slug")
+        val conference = allConferences().firstOrNull { it.slug == slug }?:throw BadRequest("Unknown slug $slug")
         return allTalks(conference,ifUnmodifiedSince)
     }
 
@@ -57,8 +64,12 @@ object PublicTalkReadService {
     }
 
     private fun readTalks(conference: Conference): AllPublicTalks {
-        cachedResults[conference.id]?.let {
-            if (it.readAt.plusMinutes(15).isAfter(LocalDateTime.now())) return it
+        val cachedTalks:AllPublicTalks? = cachedResults[conference.id]
+        if (cachedTalks != null) {
+            if (cachedTalks.readAt.plusMinutes(15).isAfter(LocalDateTime.now())) {
+                return cachedTalks
+            }
+
         }
         val allTalks: List<PublicTalkInDb> = TalkRepo.publicTalksFromConference(conference.id)
 
