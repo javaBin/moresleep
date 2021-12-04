@@ -22,6 +22,7 @@ enum class SetupValue(val defaultValue:String) {
 }
 
 object Setup {
+    var isRunningJunit = false
     private val setupvalues:ConcurrentMap<SetupValue,String> = ConcurrentHashMap()
 
     fun readValue(setupValue: SetupValue):String = setupvalues[setupValue]?:setupValue.defaultValue

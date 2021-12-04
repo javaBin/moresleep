@@ -27,6 +27,7 @@ class TalkInDb(
     val publicdata:JsonObject?,
     val publishedAt:LocalDateTime?,
     val created:LocalDateTime,
+    val slottimes:String,
     ) {
     constructor(rs:ResultSet):this(
             id = rs.requiredString("id"),
@@ -38,6 +39,8 @@ class TalkInDb(
             publicdata = rs.getString("publicdata")?.let { JsonObject.parse(it) },
             publishedAt = rs.getLocalDateTime("publishedAt"),
             created = rs.requiredLocalDateTime("created"),
+            slottimes = rs.requiredString("slottimes")
+
     )
 
     val dataMap:Map<String,DataValue> = fromDataObject(data)
@@ -74,18 +77,20 @@ object TalkRepo {
         }
     }
 
-    fun aTalk(talkid:String):TalkInDb? = ServiceExecutor.connection().preparedStatement("select * from talk where id = ?") {statement ->
+    fun aTalk(talkid:String):TalkInDb? = ServiceExecutor.connection().preparedStatement(
+        "select t.*,c.slottimes from talk t,conference c where t.id = ? and t.conferenceid = c.id") {statement ->
         statement.setString(1,talkid)
         statement.withResultSet { if (it.next()) TalkInDb(it) else null }
     }
 
-    fun allTalksInForConference(conferenceid: String):List<TalkInDb> = ServiceExecutor.connection().preparedStatement("select * from talk where conferenceid = ?") { statement ->
+    fun allTalksInForConference(conferenceid: String):List<TalkInDb> = ServiceExecutor.connection().preparedStatement(
+        "select t.*,c.slottimes from talk t, conference c where t.conferenceid = ? and t.conferenceid = c.id") { statement ->
         statement.setString(1,conferenceid)
         statement.allFromQuery { TalkInDb(it) }
     }
 
     fun allTalksForEmailAddress(email:String):List<TalkInDb> = ServiceExecutor.connection().preparedStatement(
-        """select distinct t.* from talk t, speaker s where s.talkid = t.id and (s.email = ? or t.postedby = ?)"""
+        """select distinct t.*,c.slottimes from talk t, speaker s, conference c where s.talkid = t.id and (s.email = ? or t.postedby = ?) and t.conferenceid = c.id"""
     ) { statement ->
         statement.setString(1,email)
         statement.setString(2,email)

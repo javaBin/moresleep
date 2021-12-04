@@ -2,7 +2,7 @@ package no.java.moresleep.talk
 
 class OldValue(val key:String,val value:String)
 
-class SessionUpdates(talkInDb: TalkInDb?,speakers:List<SpeakerInDb>) {
+class SessionUpdates constructor(talkInDb: TalkInDb?,speakers:List<SpeakerInDb>) {
     val speakerUpdates:List<String> = emptyList()
     @JvmField val hasUnpublishedChanges:Boolean
     val oldValues:List<OldValue>

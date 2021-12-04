@@ -7,7 +7,7 @@ class Conference(val id:String,val name:String,val slug:String) {
     constructor(rs:ResultSet):this(
             id = rs.requiredString("id"),
             name = rs.requiredString("name"),
-            slug = rs.requiredString("slug")
+            slug = rs.requiredString("slug"),
     )
 
 

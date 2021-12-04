@@ -6,12 +6,15 @@ import no.java.moresleep.withResultSet
 import java.util.*
 
 object ConferenceRepo {
+    private const val DEFAULT_SLOTS = "09:00,10:20,11:40,13:00,14:20,15:40,17:00,18:20";
+
     fun addNewConference(name:String,slug:String,givenid:String?):String {
         val id = givenid?:UUID.randomUUID().toString()
-        ServiceExecutor.connection().preparedStatement("insert into conference(id,name,slug) values (?,?,?)") {
+        ServiceExecutor.connection().preparedStatement("insert into conference(id,name,slug,slottimes) values (?,?,?,?)") {
             it.setString(1,id)
             it.setString(2,name)
             it.setString(3,slug)
+            it.setString(4, DEFAULT_SLOTS)
             it.executeUpdate()
         }
         return id

@@ -75,6 +75,7 @@ abstract class BaseTestClass {
 
     @BeforeEach
     fun setup() {
+        Setup.isRunningJunit = true;
         PublicTalkReadService.allConferences = { ConferenceRepo.allConferences() }
         PublicTalkReadService.clearCache()
 

@@ -1,5 +1,6 @@
 package no.java.moresleep.talk
 
+import no.java.moresleep.conference.Conference
 import org.jsonbuddy.JsonArray
 import org.jsonbuddy.JsonObject
 import org.jsonbuddy.JsonString
@@ -10,18 +11,13 @@ import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
-private val slotStarts:List<LocalTime> = listOf(
-    LocalTime.of(9,0),
-    LocalTime.of(10,20),
-    LocalTime.of(11,40),
-    LocalTime.of(13,0),
-    LocalTime.of(14,20),
-    LocalTime.of(15,40),
-    LocalTime.of(17,0),
-    LocalTime.of(18,20),
-)
+private val timeFormat = DateTimeFormatter.ofPattern("HH:mm")
 
-private fun toStartSlot(startTimeStr:String?, endTimeStr:String?):String? {
+private fun computeSlotStart(slottimes: String):List<LocalTime> =
+    slottimes.split(",").map {
+        LocalTime.parse(it, timeFormat).withSecond(0).withNano(0)
+    }
+private fun toStartSlot(startTimeStr:String?, endTimeStr:String?,slottimes:String):String? {
     if (startTimeStr == null || endTimeStr == null) {
         return null
     }
@@ -31,6 +27,7 @@ private fun toStartSlot(startTimeStr:String?, endTimeStr:String?):String? {
     if (Duration.between(startTime,endTime).abs().seconds > 21L*60L) {
         return startTimeStr
     }
+    val slotStarts = computeSlotStart(slottimes)
     val startTimeTime = startTime.toLocalTime()
     val slotStartTime:LocalTime = slotStarts.filter { (it.hour == startTime.hour && it.minute == startTime.minute) || it.isBefore(startTimeTime) }.maxOf { it }
 
@@ -52,7 +49,7 @@ private fun toPublicMap(talkInDb: TalkInDb):Map<String,String> {
     res["sessionId"] = talkInDb.id
     res["conferenceId"] = talkInDb.conferenceid
 
-    toStartSlot(res["startTime"],res["endTime"])?.let {
+    toStartSlot(res["startTime"],res["endTime"],talkInDb.slottimes)?.let {
         res["startSlot"] = it
         res["startSlotZulu"] = toZuluTimeString(it)
     }
