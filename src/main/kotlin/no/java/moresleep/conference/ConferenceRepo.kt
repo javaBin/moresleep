@@ -20,6 +20,14 @@ object ConferenceRepo {
         return id
     }
 
+    fun updateSlottimes(conferenceid: String,slottimes:String) {
+        ServiceExecutor.connection().preparedStatement("update conference set slottimes = ? where id = ?") {
+            it.setString(1,slottimes)
+            it.setString(2,conferenceid)
+            it.executeUpdate()
+        }
+    }
+
     fun allConferences():List<Conference> =
         ServiceExecutor.connection().allFromQuery("select * from conference") {
             Conference(it)

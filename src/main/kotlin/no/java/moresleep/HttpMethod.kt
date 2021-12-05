@@ -3,6 +3,7 @@ package no.java.moresleep
 import no.java.moresleep.conference.CreateNewConference
 import no.java.moresleep.conference.ReadAllConferences
 import no.java.moresleep.conference.ReadConfigCommand
+import no.java.moresleep.conference.UpdateConference
 import no.java.moresleep.talk.*
 import kotlin.reflect.KClass
 
@@ -35,7 +36,8 @@ enum class HttpMethod {
                 )
             DELETE -> emptyList()
             PUT -> listOf(
-                Pair("/data/session/:id", UpdateSession::class)
+                Pair("/data/session/:id", UpdateSession::class),
+                Pair("/data/conference/:id", UpdateConference::class),
             )
         }
         for (decition in decitionList) {
