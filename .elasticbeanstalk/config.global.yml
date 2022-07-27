@@ -1,6 +1,6 @@
 branch-defaults:
   master:
-    environment: moresleep-prod
+    environment: Moresleep-prod-11
 global:
   application_name: moresleep
   default_ec2_keyname: javabin
