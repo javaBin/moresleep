@@ -1,9 +1,6 @@
 package no.java.moresleep
 
-import no.java.moresleep.conference.CreateNewConference
-import no.java.moresleep.conference.ReadAllConferences
-import no.java.moresleep.conference.ReadConfigCommand
-import no.java.moresleep.conference.UpdateConference
+import no.java.moresleep.conference.*
 import no.java.moresleep.talk.*
 import kotlin.reflect.KClass
 
@@ -32,6 +29,7 @@ enum class HttpMethod {
                         Pair("/public/allSessions/:slug", ReadAllPublicTalks::class),
                         Pair("/public/conference/:id/session", ReadAllPublicTalks::class),
                         Pair("/public/config", ReadConfigCommand::class),
+                        Pair("/public/link/:linkkey", ReadLinkCommand::class)
 
                 )
             DELETE -> emptyList()
@@ -83,3 +81,4 @@ enum class HttpMethod {
         return paramap
     }
 }
+
