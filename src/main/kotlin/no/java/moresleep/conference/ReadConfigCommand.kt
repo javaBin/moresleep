@@ -6,10 +6,10 @@ import no.java.moresleep.SystemUser
 import no.java.moresleep.UserType
 
 class ReadConfig(
-    val conferenceUrl:String="https://sleepingpill.javazone.no/public/allSessions/javazone_2022",
-    val conferenceName:String="JavaZone 2022",
-    val conferenceDates:List<String> = listOf("07.09.2022","08.09.2022"),
-    val workshopDate:String="06.09.2022"
+    val conferenceUrl:String="https://sleepingpill.javazone.no/public/allSessions/javazone_2023",
+    val conferenceName:String="JavaZone 2023",
+    val conferenceDates:List<String> = listOf("06.09.2023","07.09.2023"),
+    val workshopDate:String="05.09.2023"
 ):ServiceResult()
 
 class ReadConfigCommand:Command {
