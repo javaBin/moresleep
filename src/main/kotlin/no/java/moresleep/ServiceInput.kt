@@ -12,6 +12,7 @@ enum class SystemId {
     MORESLEEP_ADMIN,
     ANONYMOUS,
     READ_ONLY_SYSTEM,
+    SPACECAKE,
 }
 
 enum class UserType {
