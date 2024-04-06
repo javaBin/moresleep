@@ -18,7 +18,8 @@ enum class SetupValue(val defaultValue:String) {
     SLEEPING_PILL_ADDR("https://sleepingpill.javazone.no"),
     ALL_OPEN_MODE("true"),
     ALLACCESS_USER(""),
-    READ_USER("")
+    READ_USER(""),
+    DO_FLYWAY_MIGRATION("true"),
 }
 
 object Setup {

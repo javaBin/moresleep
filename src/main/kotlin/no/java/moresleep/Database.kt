@@ -46,6 +46,9 @@ object Database {
     }
 
     fun migrateWithFlyway(spesialSetup:((Flyway) -> Unit)?=null, preset:((Connection)->Unit)?=null) {
+        if (!Setup.readBoolValue(SetupValue.DO_FLYWAY_MIGRATION)) {
+            return
+        }
         if (preset != null) {
             connection().use {
                 preset.invoke(it)
