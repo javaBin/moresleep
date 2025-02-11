@@ -31,7 +31,7 @@ object ConferenceRepo {
     fun allConferences():List<Conference> =
         ServiceExecutor.connection().allFromQuery("select * from conference") {
             Conference(it)
-        }
+        }.sortedBy { it.name }
 
     fun oneConference(conferenceid:String):Conference? =
         ServiceExecutor.connection().preparedStatement("select * from conference where id = ?") {ps ->
