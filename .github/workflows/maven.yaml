@@ -23,6 +23,9 @@ jobs:
         distribution: corretto
         cache: maven
 
+    - name: Start database
+      run: docker compose up -d db
+
     - name: Build with Maven
       run: mvn -B --no-transfer-progress clean package
 
