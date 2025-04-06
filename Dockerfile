@@ -13,4 +13,4 @@ ENV RUN_FROM_JAR=true
 
 COPY --from=fetch /target/application.jar /work/application.jar
 
-RUN java -jar /work/application.jar
+CMD ["java", "-jar", "/work/application.jar"]

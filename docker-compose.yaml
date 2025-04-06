@@ -9,15 +9,13 @@ services:
       - .postgres_data:/var/lib/postgresql/data
 
   service:
-    image: amazoncorretto:21-al2023-headless
-    command: java -jar /src/target/moresleep-0.0.1-jar-with-dependencies.jar
+    build: .
     ports:
       - "8082:8082"
     volumes:
       - ./:/src
     environment:
       - DBHOST=db
-      - RUN_FROM_JAR=true
     env_file:
       - path: ./.env
         required: false
