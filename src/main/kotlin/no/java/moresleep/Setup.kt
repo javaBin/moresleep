@@ -26,7 +26,7 @@ object Setup {
     var isRunningJunit = false
     private val setupvalues:ConcurrentMap<SetupValue,String> = ConcurrentHashMap()
 
-    fun readValue(setupValue: SetupValue):String = setupvalues[setupValue]?:setupValue.defaultValue
+    fun readValue(setupValue: SetupValue):String = setupvalues[setupValue]?:System.getenv(setupValue.name)?:setupValue.defaultValue
     fun readBoolValue(setupValue: SetupValue):Boolean = (readValue(setupValue) == "true")
 
     fun loadFromFile(args: Array<String>) {
