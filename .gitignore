@@ -10,3 +10,4 @@ target/
 src/main/kotlin/no/anksoft
 .DS_Store
 .env
+.postgres_data

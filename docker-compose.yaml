@@ -2,8 +2,22 @@ name: moresleep
 
 services:
   db:
-    build:
-      context: docker/postgres
-      dockerfile: Dockerfile
+    build: docker/postgres
     ports:
       - "5432:5432"
+    volumes:
+      - .postgres_data:/var/lib/postgresql/data
+
+  service:
+    image: amazoncorretto:21-al2023-headless
+    command: java -jar /src/target/moresleep-0.0.1-jar-with-dependencies.jar
+    ports:
+      - "8082:8082"
+    volumes:
+      - ./:/src
+    environment:
+      - DBHOST=db
+      - RUN_FROM_JAR=true
+    env_file:
+      - path: ./.env
+        required: false
