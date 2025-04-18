@@ -28,8 +28,11 @@ class UpdateSession(val data: Map<String,DataValue>?=null,val speakers:List<Spea
                     val newData:JsonObject = exsisting.data
                     updateDataObject(speaker.data,newData)
                     SpeakerRepo.updateSpeaker(speaker.id,newName,newEmail,newData)
+                    if (Setup.readBoolValue(SetupValue.STORE_UPDATES)) {
+                        SpeakerRepo.registerSpeakerUpdate(speaker.id,talkInDb.id,talkInDb.conferenceid,newName,newEmail,newData,systemUser.systemId)
+                    }
                 } else {
-                    createdSpeakers.add(speaker.addToDb(talkInDb.id,talkInDb.conferenceid,null))
+                    createdSpeakers.add(speaker.addToDb(talkInDb.id,talkInDb.conferenceid,systemUser,null))
                 }
             }
             for (exsisting in exsistingSpeakers) {
@@ -51,7 +54,12 @@ class UpdateSession(val data: Map<String,DataValue>?=null,val speakers:List<Spea
             PublishTalk.doPublish(talkInDb.id,status)
         }
 
-        TalkRepo.registerTalkUpdate(talkInDb.id,talkInDb.conferenceid,systemUser.systemId)
+        TalkRepo.registerTalkUpdate(
+            talkid = talkInDb.id,
+            conferenceid = talkInDb.conferenceid,
+            systemId = systemUser.systemId,
+            payload = if (Setup.readBoolValue(SetupValue.STORE_UPDATES)) talkInDb.data else null
+        )
 
         return ReadOneSession().execute(systemUser,parameters)
     }

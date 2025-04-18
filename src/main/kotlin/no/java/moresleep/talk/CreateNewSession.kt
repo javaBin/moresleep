@@ -35,7 +35,7 @@ class CreateNewSession(val data: Map<String,DataValue>?=null,val postedBy:String
         }
 
 
-        val dataObject = toDataObject(data)
+        val dataObject:JsonObject = toDataObject(data)
 
         val sessionId:String = id?:UUID.randomUUID().toString()
 
@@ -58,14 +58,19 @@ class CreateNewSession(val data: Map<String,DataValue>?=null,val postedBy:String
             if (!speaker.id.isNullOrEmpty() && systemUser.userType != UserType.SUPERACCESS) {
                 throw ForbiddenRequest("No id allowed on speaker")
             }
-            createdSpeakers.add(speaker.addToDb(sessionId,conferenceId,if (speaker.id.isNullOrEmpty()) null else speaker.id))
+            createdSpeakers.add(speaker.addToDb(sessionId,conferenceId,systemUser,if (speaker.id.isNullOrEmpty()) null else speaker.id))
         }
 
         if (id != null && SessionStatus.publcStatuses.contains(sessionStatus)) {
             PublishTalk.doPublish(id,sessionStatus)
         }
 
-        TalkRepo.registerTalkUpdate(sessionId,conf.id,systemUser.systemId)
+        TalkRepo.registerTalkUpdate(
+            talkid = sessionId,
+            conferenceid = conf.id,
+            systemId = systemUser.systemId,
+            payload = if (Setup.readBoolValue(SetupValue.STORE_UPDATES)) dataObject else null
+        )
 
         return ReadOneTalk().execute(systemUser, mapOf(Pair("id",sessionId)))
 

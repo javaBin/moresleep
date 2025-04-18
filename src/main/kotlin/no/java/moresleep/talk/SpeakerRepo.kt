@@ -1,10 +1,9 @@
 package no.java.moresleep.talk
 
-import no.java.moresleep.ServiceExecutor
-import no.java.moresleep.allFromQuery
-import no.java.moresleep.requiredString
+import no.java.moresleep.*
 import org.jsonbuddy.JsonObject
 import java.sql.ResultSet
+import java.time.*
 import java.util.*
 
 class SpeakerInDb(val id:String,val talkId: String,val name:String,val email: String,val data: JsonObject) {
@@ -52,6 +51,24 @@ object SpeakerRepo {
 
         }
     }
+
+
+    fun registerSpeakerUpdate(id:String,talkId:String,conferenceid:String,name:String,email:String,data:JsonObject,systemId: SystemId) {
+        ServiceExecutor.connection().preparedStatement("insert into speakerupdate(id,talkid,conferenceid,name,email,data,updatedby,updatedat) values (?,?,?,?,?,?,?,?)") {
+            it.setString(1,id)
+            it.setString(2,talkId)
+            it.setString(3,conferenceid)
+            it.setString(4,name)
+            it.setString(5,email)
+            it.setString(6,data.toJson())
+            it.setString(7,systemId.name)
+            it.setTimestamp(8, LocalDateTime.now())
+            it.executeUpdate()
+        }
+    }
+
+
+
 
     fun deleteSpeaker(speakerid: String) {
         ServiceExecutor.connection().preparedStatement("delete from speaker where id = ?") {

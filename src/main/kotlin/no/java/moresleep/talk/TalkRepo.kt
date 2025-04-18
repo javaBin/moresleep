@@ -139,12 +139,13 @@ object TalkRepo {
         }
     }
 
-    fun registerTalkUpdate(talkid: String,conferenceid: String,systemId: SystemId) {
-        ServiceExecutor.connection().preparedStatement("insert into talkupdate(talkid,conferenceid, updatedby, updatedat) values (?,?,?,?)") { statement ->
+    fun registerTalkUpdate(talkid: String,conferenceid: String,systemId: SystemId,payload:JsonObject?) {
+        ServiceExecutor.connection().preparedStatement("insert into talkupdate(talkid,conferenceid, updatedby, updatedat,payload) values (?,?,?,?,?)") { statement ->
             statement.setString(1,talkid)
             statement.setString(2,conferenceid)
             statement.setString(3,systemId.name)
             statement.setTimestamp(4,LocalDateTime.now())
+            statement.setString(5,payload?.toJson())
             statement.executeUpdate()
         }
     }

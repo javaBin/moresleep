@@ -1,6 +1,6 @@
 package no.java.moresleep.talk
 
-import no.java.moresleep.BadRequest
+import no.java.moresleep.*
 import java.util.*
 
 
@@ -9,7 +9,7 @@ class SpeakerUpdate(val id:String?=null,val name:String?=null,val email:String?=
 
     }
 
-    fun addToDb(sessionId:String,conferenceId:String,givenId:String?=null):Speaker {
+    fun addToDb(sessionId:String,conferenceId:String,systemUser: SystemUser,givenId:String?=null):Speaker {
         if (this.name.isNullOrEmpty()) {
             throw BadRequest("Missing name in speaker")
         }
@@ -17,7 +17,11 @@ class SpeakerUpdate(val id:String?=null,val name:String?=null,val email:String?=
             throw BadRequest("Missing email in speaker")
         }
         val speakerid = givenId?:UUID.randomUUID().toString()
-        SpeakerRepo.addSpeaker(speakerid,sessionId,conferenceId,this.name,this.email, toDataObject(this.data))
+        val dataObject = toDataObject(this.data)
+        SpeakerRepo.addSpeaker(speakerid,sessionId,conferenceId,this.name,this.email, dataObject)
+        if (Setup.readBoolValue(SetupValue.STORE_UPDATES)) {
+            SpeakerRepo.registerSpeakerUpdate(speakerid,sessionId,conferenceId,this.name,this.email,dataObject,systemUser.systemId)
+        }
         return Speaker(
                         id = speakerid,
                         name = this.name,

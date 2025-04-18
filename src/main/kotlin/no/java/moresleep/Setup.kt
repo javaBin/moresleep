@@ -20,6 +20,8 @@ enum class SetupValue(val defaultValue:String) {
     ALLACCESS_USER(""),
     READ_USER(""),
     DO_FLYWAY_MIGRATION("true"),
+    STORE_UPDATES("true"),
+
 }
 
 object Setup {
