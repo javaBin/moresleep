@@ -60,6 +60,20 @@ class TalkUpdates(
         )
 }
 
+class TalkUpdateWithPayload(
+    val talkid: String,
+    val updatedBy: String,
+    val updatedAt:String,
+    val payload:JsonObject?
+) {
+    constructor(resultSet: ResultSet):this(
+        updatedBy = SystemId.valueOf(resultSet.requiredString("updatedby")).name,
+        updatedAt = resultSet.requiredLocalDateTime("updatedat").toString(),
+        talkid = resultSet.requiredString("talkid"),
+        payload = resultSet.getString("payload")?.let { JsonObject.parse(it) }
+    )
+}
+
 
 object TalkRepo {
     fun addNewTalk(talkid:String,conferenceid:String,status: SessionStatus,postedBy:String?,data:JsonObject,lastUpdated: LocalDateTime, publicdata:JsonObject?,publishedAt:LocalDateTime?) {
@@ -155,9 +169,16 @@ object TalkRepo {
         statement.allFromQuery { TalkUpdates(it) }
     }
 
+    fun updatesWithPayloadOnTalk(talkid:String):List<TalkUpdateWithPayload> = ServiceExecutor.connection().preparedStatement("select * from talkupdate where talkid = ? order by updatedat") { statement ->
+        statement.setString(1,talkid)
+        statement.allFromQuery { TalkUpdateWithPayload(it) }
+    }
+
     fun talkUpdatesOnConference(conferenceid: String) = ServiceExecutor.connection().preparedStatement("select * from talkupdate where conferenceid = ? order by updatedat") { statement ->
         statement.setString(1,conferenceid)
         statement.allFromQuery { TalkUpdates(it) }
     }
+
+
 
 }
