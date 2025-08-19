@@ -289,6 +289,7 @@ class TalkTest:BaseTestClass() {
 
     @Test
     fun talkWithStartSlot() {
+        Setup.setValue(SetupValue.CONFIG_SLOTS,"true")
         val conferenceid = CreateNewConference(name = "JavaZone 2021", slug = "javazone2021").execute(testFullAccessUser, emptyMap()).id
         val startTime:LocalDateTime = LocalDateTime.of(2021,12,8,10,30)
         val endTime:LocalDateTime = LocalDateTime.of(2021,12,8,10,40)

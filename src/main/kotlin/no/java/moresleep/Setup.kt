@@ -21,6 +21,7 @@ enum class SetupValue(val defaultValue:String) {
     READ_USER(""),
     DO_FLYWAY_MIGRATION("true"),
     STORE_UPDATES("true"),
+    CONFIG_SLOTS("false"),
 
 }
 

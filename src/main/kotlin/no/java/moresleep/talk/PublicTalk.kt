@@ -1,5 +1,7 @@
 package no.java.moresleep.talk
 
+import no.java.moresleep.Setup
+import no.java.moresleep.SetupValue
 import no.java.moresleep.conference.Conference
 import org.jsonbuddy.JsonArray
 import org.jsonbuddy.JsonObject
@@ -18,6 +20,9 @@ private fun computeSlotStart(slottimes: String):List<LocalTime> =
         LocalTime.parse(it, timeFormat).withSecond(0).withNano(0)
     }
 private fun toStartSlot(startTimeStr:String?, endTimeStr:String?,slottimes:String):String? {
+    if (!Setup.readBoolValue(SetupValue.CONFIG_SLOTS)) {
+        return startTimeStr
+    }
     if (startTimeStr == null || endTimeStr == null) {
         return null
     }
