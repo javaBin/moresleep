@@ -34,6 +34,7 @@ object Setup {
 
     fun loadFromFile(args: Array<String>) {
         if (args.size < 1) {
+            loadFromEnvironment()
             return
         }
         val setuplines:List<String> = File(args[0]).readLines(Charsets.UTF_8)
@@ -49,6 +50,15 @@ object Setup {
             val setupKey:SetupValue = SetupValue.valueOf(setupvalStr)
             val setupValue:String = line.substring(eqInd+1)
             setupvalues[setupKey] = setupValue
+        }
+    }
+
+    fun loadFromEnvironment() {
+        for (setupValue in SetupValue.values()) {
+            val value:String? = System.getenv(setupValue.name)
+            if (value != null) {
+                setupvalues[setupValue] = value
+            }
         }
     }
 
