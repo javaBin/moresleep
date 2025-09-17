@@ -40,9 +40,11 @@ private fun createHandler(): Handler {
 
     if (Setup.readBoolValue(SetupValue.RUN_FROM_JAR)) {
         // Prod ie running from jar
+        println("Running from jar")
         webAppContext.baseResource = Resource.newClassPathResource("webapp", true, false)
     } else {
         // Development ie running in ide
+        println("Running from local filesystem")
         webAppContext.resourceBase = "src/main/resources/webapp"
     }
 
