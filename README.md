@@ -123,3 +123,8 @@ LOAD_FROM_SLEEPINGPILL=true
 ```
 
 Run the Application class. Provide a full path to the file above as program argument. If you start with your local database empty it will now be populated with data from the server.
+
+# Change requests
+- Data fields on conference
+- Simple Sorting and filter options
+- Webhooks to be called to report changes on talks
