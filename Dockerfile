@@ -1,16 +1,18 @@
-# Fetch the application jar from the target directory and rename it to application.jar
-FROM amazoncorretto:21-al2023-headless AS fetch
+# Build: docker build -t moresleep-app:latest .
+# Run: docker run  --name moresleep-container -p 8082:8082 moresleep-app:latest
+# Check localhost:8082 and you should get a homepage
+# Stage 1: Build the application
+FROM maven:3.9.6-eclipse-temurin-21 AS build
+WORKDIR /app
+COPY pom.xml .
+COPY src ./src
+RUN mvn clean package -Dmaven.test.skip=true
 
-COPY target /target
-RUN mv /target/*-with-dependencies.jar /target/application.jar
-
-
-# Actual image to run the application
-FROM amazoncorretto:21-al2023-headless
-
-EXPOSE 8082
-ENV RUN_FROM_JAR=true
-
-COPY --from=fetch /target/application.jar /work/application.jar
-
-CMD ["java", "-jar", "/work/application.jar"]
+# Stage 2: Create the final runtime image
+FROM eclipse-temurin:21-jre-jammy AS final
+ENV DO_FLYWAY_MIGRATION false
+ENV RUN_FROM_JAR true
+WORKDIR /app
+COPY --from=build /app/target/moresleep-0.0.1-jar-with-dependencies.jar app.jar
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "app.jar"]
