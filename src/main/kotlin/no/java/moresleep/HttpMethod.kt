@@ -8,6 +8,7 @@ enum class HttpMethod {
     GET,DELETE,POST,PUT;
 
     fun commandFromPathInfo(pathinfo: String,additionalParas: Map<String, String>): PathInfoMapped? {
+        val normalizedPath = normalizePath(pathinfo)
         val decitionList:List<Pair<String, KClass<out Command>>> = when (this) {
             POST -> listOf(
                         Pair("/data/conference", CreateNewConference::class),
@@ -40,13 +41,36 @@ enum class HttpMethod {
             )
         }
         for (decition in decitionList) {
-            val pathmatch = mapFromPath(pathinfo,decition.first,additionalParas)
+            val pathmatch = mapFromPath(normalizedPath,decition.first,additionalParas)
             if (pathmatch != null) {
                 return PathInfoMapped(decition.second, pathmatch)
             }
         }
 
         return null
+    }
+
+    private fun normalizePath(pathinfo: String): String {
+        val pathPrefix = Setup.readValue(SetupValue.PATH_PREFIX)
+        if (pathPrefix.isEmpty()) {
+            return pathinfo
+        }
+        
+        // Ensure both path and prefix start with /
+        val normalizedPathinfo = if (pathinfo.startsWith("/")) pathinfo else "/$pathinfo"
+        val normalizedPrefix = if (pathPrefix.startsWith("/")) pathPrefix else "/$pathPrefix"
+        
+        return if (normalizedPathinfo.startsWith(normalizedPrefix)) {
+            val remaining = normalizedPathinfo.substring(normalizedPrefix.length)
+            // Ensure the remaining path starts with / or is empty
+            when {
+                remaining.isEmpty() -> "/"
+                remaining.startsWith("/") -> remaining
+                else -> "/$remaining" // Add leading slash if missing
+            }
+        } else {
+            normalizedPathinfo
+        }
     }
 
     private fun mapFromPath(pathinfo: String,pattern:String,additionalParas:Map<String,String>):Map<String,String>? {
