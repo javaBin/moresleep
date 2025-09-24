@@ -2,7 +2,7 @@
 # Run: docker run  --name moresleep-container -p 5000:5000 moresleep-app:latest
 # Check localhost:5000 and you should get a homepage
 # Stage 1: Build the application
-FROM maven:3.9.6-eclipse-temurin-21 AS build
+FROM maven:3.9.11-eclipse-temurin-21 AS build
 WORKDIR /app
 COPY pom.xml .
 COPY src ./src
@@ -33,5 +33,9 @@ ENV RUN_FROM_JAR=true
 WORKDIR /app
 COPY --from=build /app/target/moresleep-0.0.1-jar-with-dependencies.jar app.jar
 COPY ./conf/.enc.env /app/.enc.env
+
+# Remove AWS profile from SOPS config to use container's AWS credentials
+RUN sed -i 's/sops_kms__list_0__map_aws_profile=javabin/sops_kms__list_0__map_aws_profile=/' /app/.enc.env
+
 EXPOSE 5000
 ENTRYPOINT ["sops", "exec-env", ".enc.env", "java -jar app.jar"]
