@@ -8,6 +8,7 @@ import { importExistingResources } from './existing-resources';
 const port = 5000;
 const healthCheckPath = '/';
 const priority = 15;
+const desiredCount = 2;
 
 export class MoresleepStack extends cdk.Stack {
   constructor(scope: Construct, id: string, properties?: cdk.StackProps) {
@@ -51,7 +52,7 @@ export class MoresleepStack extends cdk.Stack {
     const service = new ecs.FargateService(this, 'Service', {
       cluster,
       taskDefinition,
-      desiredCount: 1,
+      desiredCount,
       assignPublicIp: true,
       circuitBreaker: { rollback: true },
     });
