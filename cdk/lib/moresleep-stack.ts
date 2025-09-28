@@ -6,7 +6,6 @@ import { type Construct } from 'constructs';
 import { importExistingResources } from './existing-resources';
 
 const port = 5000;
-const pathPattern = '/moresleep/*';
 const healthCheckPath = '/';
 const priority = 15;
 
@@ -44,9 +43,6 @@ export class MoresleepStack extends cdk.Stack {
 
     taskDefinition.addContainer('web', {
       image: ecs.ContainerImage.fromAsset('../', { file: 'Dockerfile' }), 
-      environment: {
-        PATH_PREFIX: 'moresleep'
-      },
 
       portMappings: [{ containerPort: port }],
       logging: new ecs.AwsLogDriver({ streamPrefix: 'web' }),
@@ -63,7 +59,7 @@ export class MoresleepStack extends cdk.Stack {
     // Create a target group and add it to the existing listener
     const targetGroup = new elbv2.ApplicationTargetGroup(this, 'TargetGroup', {
       vpc,
-      port: port,
+      port,
       protocol: elbv2.ApplicationProtocol.HTTP,
       targets: [service],
       healthCheck: {
@@ -74,7 +70,7 @@ export class MoresleepStack extends cdk.Stack {
     existingListener.addTargetGroups('AddTargetGroup', {
       targetGroups: [targetGroup],
       priority,
-      conditions: [elbv2.ListenerCondition.pathPatterns([pathPattern])],
+      conditions: [elbv2.ListenerCondition.hostHeaders(['sleepingpill.javazone.no'])],
     });
   }
 }
