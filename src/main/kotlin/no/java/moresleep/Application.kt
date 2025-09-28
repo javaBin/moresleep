@@ -36,7 +36,15 @@ private fun setupAndStartServer(args: Array<String>) {
 private fun createHandler(): Handler {
     val webAppContext = WebAppContext()
     webAppContext.initParams["org.eclipse.jetty.servlet.Default.useFileMappedBuffer"] = "false"
-    webAppContext.contextPath = "/"
+    
+    // Set context path with optional PATH_PREFIX support
+    val pathPrefix = Setup.readValue(SetupValue.PATH_PREFIX)
+    if (pathPrefix.isNotEmpty()) {
+        webAppContext.contextPath = "/$pathPrefix"
+        println("Setting context path to: /$pathPrefix")
+    } else {
+        webAppContext.contextPath = "/"
+    }
 
     if (Setup.readBoolValue(SetupValue.RUN_FROM_JAR)) {
         // Prod ie running from jar
@@ -49,7 +57,6 @@ private fun createHandler(): Handler {
     }
 
     // Add servlet mappings with optional PATH_PREFIX support
-    val pathPrefix = Setup.readValue(SetupValue.PATH_PREFIX)
     if (pathPrefix.isNotEmpty()) {
         println("Adding servlet mappings with prefix: $pathPrefix")
         webAppContext.addServlet(ServletHolder(ApiServlet("/data")), "/$pathPrefix/data/*")
