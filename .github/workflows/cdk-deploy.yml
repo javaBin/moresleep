@@ -44,4 +44,3 @@ jobs:
       - name: CDK Deploy
         working-directory: ./cdk
         run: cdk deploy --require-approval never
-
