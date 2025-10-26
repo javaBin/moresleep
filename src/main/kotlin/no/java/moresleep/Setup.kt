@@ -23,6 +23,7 @@ enum class SetupValue(val defaultValue:String) {
     STORE_UPDATES("true"),
     CONFIG_SLOTS("false"),
     PATH_PREFIX(""),
+    HOOK_WEB_ADDR(""),
 }
 
 object Setup {
