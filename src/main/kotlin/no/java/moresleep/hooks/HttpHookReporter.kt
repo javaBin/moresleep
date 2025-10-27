@@ -1,7 +1,6 @@
 package no.java.moresleep.hooks
 
 import org.jsonbuddy.pojo.JsonGenerator
-import java.io.BufferedWriter
 import java.io.OutputStreamWriter
 import java.io.PrintWriter
 import java.net.*
@@ -19,6 +18,8 @@ class HttpHookReporter(private val url:String): HookReporterInterface {
             printWriter.use {
                 jsonPaylload.toJson(it)
             }
+            val inputStream = conn.getInputStream()
+            inputStream.bufferedReader().use { it.readText() }
         }
     }
 }
