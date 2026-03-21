@@ -65,6 +65,16 @@ java -jar target/moresleep-0.0.1-jar-with-dependencies.jar
 
 ---
 
+## KCP (Knowledge Context Protocol)
+
+This project uses [KCP](https://github.com/Cantara/knowledge-context-protocol) to structure knowledge for LLM agents.
+
+Read `knowledge.yaml` first — it indexes all project knowledge with intent and triggers.
+
+Knowledge files live in `kcp/`. The manifest tells you what exists and when to load it.
+
+---
+
 ## Related
 
 - [README.md](./README.md): Public API examples, field descriptions

@@ -28,6 +28,18 @@
 
 <!-- Add newest entries at the top -->
 
+### 2026-03-21: KCP Triage — Gap Resolution on Existing KCP
+
+**Context:** Running KCP bootstrap triage on a project that already had Phases 1-3 complete
+**What happened:** Phases 1-3 were already done. Value was entirely in Phase 4 (writing dedicated docs for 4 highest-value knowledge gaps) and Phase 5 (cold-start evaluation). ReadLinkCommand turned out to be a stub returning hardcoded URL — not worth documenting.
+**Root cause:** Original triage created knowledge.yaml entries pointing to source files. Source-pointer gaps work for small files but complex cross-file concerns (auth model, transaction isolation, publish filtering, cache invalidation) need dedicated docs.
+**Fix:**
+- Wrote 4 docs in `kcp/`: transaction-model.md, authorization-model.md, publish-filtering.md, public-cache-invalidation.md
+- Merged `data-privacy-enforcement` gap into `publish-filtering` doc (DataValue.kt is 8 lines, its meaning depends on PublicTalk.kt)
+- Kept `error-handling-strategy` as source pointer (RequestError.kt is 10 lines, self-explanatory)
+- Updated knowledge.yaml: paths, verification_status, confidence, token_estimates
+**Skill updated:** Filed 3 issues to kcp-triage (#29, #30, #31) for triage guide improvements
+
 ### 2026-03-07: Initial Project Structure & Skill Creation
 
 **Context:** Setting up Claude Code for Moresleep project with comprehensive codebase understanding
