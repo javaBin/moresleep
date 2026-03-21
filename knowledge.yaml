@@ -1,0 +1,169 @@
+# Knowledge Context Protocol manifest
+# Spec: https://github.com/Cantara/knowledge-context-protocol
+version: "0.12"
+
+project:
+  name: sleeping_pill_moresleep
+  description: "Session register REST API for JavaZone conference talks (Kotlin/Jetty/PostgreSQL)"
+  type: api
+
+# RFC-0012: Discovery provenance defaults (inherited by all units unless overridden)
+discovery:
+  source: llm_inference
+  verification_status: observed
+  observed_at: "2026-03-21T12:00:00Z"
+
+# RFC-0009: Authority governance defaults (conservative — knowledge is read-only by default)
+authority:
+  read: initiative
+  summarize: initiative
+  modify: requires_approval
+  execute: denied
+  share_externally: denied
+
+knowledge:
+  - id: project-overview
+    path: kcp/OVERVIEW.md
+    intent: "Pre-scanned project overview with module inventory, architecture map, endpoint list, and knowledge gaps."
+    scope: global
+    audience: [agent]
+    triggers: [onboarding, architecture, "what does this project do", modules, endpoints]
+    discovery:
+      source: llm_inference
+      verification_status: observed
+      confidence: 0.85
+    hints:
+      token_estimate: 3500
+      load_strategy: eager
+
+  - id: conventions-quickstart
+    path: CLAUDE.md
+    intent: "Project conventions, quick-start commands, key constraints (what NOT to do), and skill references."
+    scope: global
+    audience: [agent, developer]
+    triggers: [conventions, setup, "how to build", "how to run", constraints]
+    discovery:
+      source: human_authored
+      verification_status: validated
+      confidence: 0.95
+    hints:
+      token_estimate: 600
+      load_strategy: eager
+
+  - id: codebase-architecture
+    path: .claude/skills/moresleep-codebase.md
+    intent: "Comprehensive architecture guide: package structure, API endpoints, database schema, auth model, command pattern, and common tasks."
+    scope: global
+    audience: [agent]
+    triggers: [architecture, command pattern, database, auth, "add endpoint", "add feature"]
+    discovery:
+      source: llm_inference
+      verification_status: validated
+      confidence: 0.9
+    authority:
+      execute: requires_approval      # agents may follow patterns to implement features
+    hints:
+      token_estimate: 2500
+      load_strategy: lazy
+
+  - id: public-api-docs
+    path: README.md
+    intent: "Public API documentation: endpoint URLs, JSON response formats, field descriptions, and setup instructions."
+    scope: global
+    audience: [agent, developer]
+    triggers: [public API, JSON format, field names, "what fields", setup, docker]
+    discovery:
+      source: human_authored
+      verification_status: validated
+      confidence: 0.95
+    authority:
+      share_externally: initiative    # public API docs are meant to be shared
+    hints:
+      token_estimate: 1200
+      load_strategy: lazy
+
+  - id: lessons-learned
+    path: LEARNINGS.md
+    intent: "Project-specific lessons, gotchas, and past mistakes. Prevents repeating known issues."
+    scope: global
+    audience: [agent, developer]
+    triggers: [gotcha, mistake, lesson, "went wrong", debugging]
+    discovery:
+      source: human_authored
+      verification_status: validated
+      confidence: 0.9
+    hints:
+      token_estimate: 500
+      load_strategy: lazy
+
+  # --- Resolved knowledge gaps (Phase 4 triage, 2026-03-21) ---
+
+  - id: transaction-thread-local-model
+    path: kcp/transaction-model.md
+    intent: "How are transactions isolated per HTTP request? What are the commit/rollback semantics?"
+    scope: module
+    audience: [agent, developer]
+    triggers: [transaction, connection, thread-local, commit, rollback]
+    discovery:
+      source: llm_inference
+      verification_status: validated
+      confidence: 0.95
+    hints:
+      token_estimate: 400
+      load_strategy: lazy
+
+  - id: authorization-model-ordinal
+    path: kcp/authorization-model.md
+    intent: "Why does authorization use ordinal comparison? What is the UserType hierarchy?"
+    scope: module
+    audience: [agent, developer]
+    triggers: [authorization, UserType, requiredAccess, role, FULLACCESS, SUPERACCESS]
+    discovery:
+      source: llm_inference
+      verification_status: validated
+      confidence: 0.95
+    hints:
+      token_estimate: 350
+      load_strategy: lazy
+
+  - id: publish-filtering
+    path: kcp/publish-filtering.md
+    intent: "How are private data fields filtered out during publish? What does toPublicMap() do? How does DataValue.privateData interact with filtering?"
+    scope: module
+    audience: [agent, developer]
+    triggers: [publish, publicdata, privateData, serialization, redaction, DataValue, visibility]
+    discovery:
+      source: llm_inference
+      verification_status: validated
+      confidence: 0.9
+    hints:
+      token_estimate: 300
+      load_strategy: lazy
+
+  - id: error-handling-strategy
+    path: src/main/kotlin/no/java/moresleep/RequestError.kt
+    intent: "How are errors standardized? RequestError hierarchy: BadRequest (400) + ForbiddenRequest (403). 10-line file, self-explanatory."
+    scope: module
+    audience: [agent, developer]
+    triggers: [error, exception, BadRequest, ForbiddenRequest]
+    discovery:
+      source: llm_inference
+      verification_status: validated
+      confidence: 0.9
+    hints:
+      token_estimate: 50
+      load_strategy: lazy
+
+  - id: public-talk-cache-invalidation
+    path: kcp/public-cache-invalidation.md
+    intent: "How is the public talk cache invalidated? 15-min TTL + manual clearCache() + If-Modified-Since support."
+    scope: module
+    audience: [agent, developer]
+    triggers: [cache, invalidation, PublicTalkReadService, clearCache]
+    discovery:
+      source: llm_inference
+      verification_status: validated
+      confidence: 0.9
+    hints:
+      token_estimate: 300
+      load_strategy: lazy
