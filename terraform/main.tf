@@ -116,7 +116,7 @@ module "service" {
   cpu                      = 256
   memory                   = 512
   port                     = 5000
-  desired_count            = 0
+  desired_count            = 2
   execution_role_arn       = module.platform.execution_role_arn
   task_role_arn            = module.task_role.role_arn
   subnet_ids               = module.platform.private_subnet_ids

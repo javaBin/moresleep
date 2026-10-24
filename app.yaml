@@ -9,7 +9,7 @@ compute:
   cpu: 256            # same size as the old CDK service (0.25 vCPU)
   memory: 512         # MB
   port: 5000          # SERVER_PORT below
-  desired_count: 0    # no tasks until the secrets are set (raised to 2 in a later PR)
+  desired_count: 2    # same as the old CDK service
   health_check: /     # serves webapp/index.html
 
 # Parallel run on a new hostname first. sleepingpill.javazone.no keeps pointing
