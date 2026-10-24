@@ -1,6 +1,6 @@
 # GENERATED FROM app.yaml — do not edit, changes will be overwritten
 output "service_url" {
-  value = "https://moresleep.javazone.no"
+  value = "https://sleepingpill.javazone.no"
 }
 
 output "ecr_url" {

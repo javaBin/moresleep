@@ -12,11 +12,13 @@ compute:
   desired_count: 2    # same as the old CDK service
   health_check: /     # serves webapp/index.html
 
-# Parallel run on a new hostname first. sleepingpill.javazone.no keeps pointing
-# at the old stack until the cutover PR.
+# The public hostname. adopt_dns takes over the existing (hand-made) Route53
+# record: Terraform overwrites it to point at the platform ALB and manages it
+# from now on. The moresleep.javazone.no record from the parallel run is removed.
 routing:
-  host: moresleep.javazone.no
+  host: sleepingpill.javazone.no
   priority: 120       # ALB listener rule priority, unique on the platform ALB
+  adopt_dns: true
 
 resources:
   databases:

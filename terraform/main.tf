@@ -25,11 +25,12 @@ module "routing" {
   health_check_matcher   = "200"
   https_listener_arn     = module.platform.https_listener_arn
   listener_rule_priority = 120
-  host_header            = "moresleep.javazone.no"
+  host_header            = "sleepingpill.javazone.no"
   route53_zone_id        = module.platform.route53_zone_ids["javazone.no"]
   alb_dns_name           = module.platform.alb_dns_name
   alb_zone_id            = module.platform.alb_zone_id
   deregistration_delay   = 30
+  allow_dns_overwrite    = true
 }
 
 module "rds_main" {
