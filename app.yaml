@@ -1,0 +1,52 @@
+# javaBin platform app definition. The platform pipeline turns this file into
+# Terraform (terraform/, generated, do not edit) and deploys it.
+# Guide: docs/platform.md. Field reference:
+# https://github.com/javaBin/platform/blob/main/docs/app-yaml-reference.md
+name: moresleep
+team: moresleep
+
+compute:
+  cpu: 256            # same size as the old CDK service (0.25 vCPU)
+  memory: 512         # MB
+  port: 5000          # SERVER_PORT below
+  desired_count: 0    # no tasks until the secrets are set (raised to 2 in a later PR)
+  health_check: /     # serves webapp/index.html
+
+# Parallel run on a new hostname first. sleepingpill.javazone.no keeps pointing
+# at the old stack until the cutover PR.
+routing:
+  host: moresleep.javazone.no
+  priority: 120       # ALB listener rule priority, unique on the platform ALB
+
+resources:
+  databases:
+    # The existing database. Imported into Terraform state, never recreated:
+    # the platform only adds tags and turns on deletion protection.
+    - name: main
+      engine: postgres
+      adopt: dbmoresleep
+      host_env: DBHOST
+      port_env: DBPORT
+      deletion_protection: true
+  # SSM SecureStrings, created with the value PLACEHOLDER. Set real values with
+  # `javabin secret set <name>` (see docs/platform.md).
+  secrets:
+    - name: db-name
+      env: DATASOURCENAME
+    - name: db-user
+      env: DBUSER
+    - name: db-password
+      env: DBPASSWORD
+    - name: allaccess-user
+      env: ALLACCESS_USER
+    - name: read-user
+      env: READ_USER
+
+# Plain (non-secret) configuration, read by Setup.kt like before.
+environment:
+  SERVER_PORT: "5000"
+  RUN_FROM_JAR: "true"
+  DATABASE_TYPE: POSTGRES
+  DO_FLYWAY_MIGRATION: "false"     # production schema is migrated deliberately, as today
+  LOAD_FROM_SLEEPINGPILL: "false"  # the old sleepingPillCore import stays off
+  ALL_OPEN_MODE: "false"           # the code default is "true" (no auth). Must stay explicit.
