@@ -1,6 +1,9 @@
 package no.java.moresleep.talk
 
 import no.java.moresleep.*
+import no.java.moresleep.hooks.HookMessage
+import no.java.moresleep.hooks.HookMessageType
+import no.java.moresleep.hooks.HookReporter
 import org.jsonbuddy.JsonObject
 
 class PublishOk:ServiceResult() {
@@ -15,6 +18,10 @@ class PublishUpdates:Command {
             throw BadRequest("Talk $talkid is not pubished. Publish before change")
         }
         PublishTalk.doPublish(talkid,talkInDb.status)
+        HookReporter.reportHook(HookMessage(
+            type = HookMessageType.PUBLISH_UOPDATES,
+            reference = talkid
+        ))
         return PublishOk()
     }
 

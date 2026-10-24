@@ -1,6 +1,9 @@
 package no.java.moresleep.talk
 
 import no.java.moresleep.*
+import no.java.moresleep.hooks.HookMessage
+import no.java.moresleep.hooks.HookMessageType
+import no.java.moresleep.hooks.HookReporter
 import org.jsonbuddy.JsonObject
 import org.jsonbuddy.pojo.JsonGenerator
 import javax.servlet.http.HttpServletResponse
@@ -61,7 +64,12 @@ class UpdateSession(val data: Map<String,DataValue>?=null,val speakers:List<Spea
             payload = if (Setup.readBoolValue(SetupValue.STORE_UPDATES)) talkInDb.data else null
         )
 
-        return ReadOneSession().execute(systemUser,parameters)
+        val talkDetail = ReadOneSession().execute(systemUser, parameters)
+        HookReporter.reportHook(HookMessage(
+            type = HookMessageType.CHANGED_TALK,
+            reference = talkDetail.id,
+        ))
+        return talkDetail
     }
 
     private fun updateDataObject(

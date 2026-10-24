@@ -22,7 +22,8 @@ enum class SetupValue(val defaultValue:String) {
     DO_FLYWAY_MIGRATION("true"),
     STORE_UPDATES("true"),
     CONFIG_SLOTS("false"),
-
+    PATH_PREFIX(""),
+    HOOK_WEB_ADDR(""),
 }
 
 object Setup {

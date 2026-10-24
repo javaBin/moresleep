@@ -11,3 +11,5 @@ src/main/kotlin/no/anksoft
 .DS_Store
 .env
 .postgres_data
+cdk.out/
+node_modules
