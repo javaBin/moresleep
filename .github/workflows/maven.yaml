@@ -50,5 +50,8 @@ jobs:
         if-no-files-found: error
         retention-days: 7
 
+    # Only merged code becomes :edge (other repos' local setups pull it, e.g.
+    # javaBin/submittheforce compose.yaml). Pull requests build and test only.
     - name: Build and push docker image [edge]
+      if: github.event_name != 'pull_request'
       run: docker buildx build --push -t ghcr.io/javabin/moresleep:edge --platform linux/amd64,linux/arm64 .
