@@ -1,5 +1,4 @@
 .git
-cdk/
 target/
 test/
 node_modules/

@@ -8,7 +8,7 @@ hostname `https://sleepingpill.javazone.no`, the Basic-auth model, and the env-v
 read by `Setup.kt`. No consumer (submit, cake-redux, cupcake, the JavaZone web sites, ...) needs to
 change anything.
 
-**What changes:** the code is built and deployed by a shared pipeline instead of `cdk deploy`. The
+**What changed:** the code is built and deployed by a shared pipeline instead of `cdk deploy`. The
 container runs in the platform's ECS cluster behind the platform's load balancer, and secrets come
 from SSM Parameter Store instead of a SOPS file baked into the image.
 
@@ -81,7 +81,7 @@ javabin secret set db-password            # prompts without echo
 The platform restarts the service within about a minute of a secret changing, so the tasks pick up
 the new value. Terraform never overwrites a value you have set.
 
-For the migration, the values come from today's SOPS file (`sops -d conf/.enc.env`):
+For the migration, the values came from the old SOPS file (`conf/.enc.env`, removed after the cutover; still in git history):
 
 | SOPS variable | platform secret |
 |---|---|
