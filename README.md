@@ -7,9 +7,10 @@ Aiming to replace [Sleepingpill](https://github.com/javaBin/sleepingPillCore)
 
 # Deployment
 
-moresleep is moving onto the javaBin platform: `app.yaml` describes the infrastructure and
+moresleep runs on the javaBin platform: `app.yaml` describes the infrastructure and
 `.github/workflows/deploy.yml` builds, tests and deploys on merge to `master`.
-See [docs/platform.md](docs/platform.md).
+Configuration is read from environment variables (`Setup.kt`); production values come from
+`app.yaml` and the platform's SSM secrets. See [docs/platform.md](docs/platform.md).
 
 # Setup
 
