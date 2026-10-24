@@ -6,8 +6,8 @@ PATH_PREFIX="$1"
 
 echo "Setting PATH_PREFIX to: '$PATH_PREFIX'"
 
-# Build the Docker image
-docker build -t moresleep-app:latest .
+# Build the SOPS image used by the old CDK stack (decrypts conf/.enc.env with your AWS profile)
+docker build -f Dockerfile.cdk -t moresleep-app:latest .
 
 # Run the container with AWS credentials mounted
 docker run --rm -it \

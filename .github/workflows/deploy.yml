@@ -1,0 +1,36 @@
+# Build, test and deploy moresleep with the javaBin platform pipeline.
+#
+# Pull requests: build + test, regenerate terraform/ from app.yaml, plan, and
+# post the plan with an AI risk review as a PR comment. Nothing is applied.
+# Pushes to master (and manual runs): the same, then apply the reviewed plan,
+# build the Docker image, push it to ECR and roll out the ECS service.
+#
+# How it works: docs/platform.md. Pipeline reference:
+# https://github.com/javaBin/platform/blob/main/docs/reusable-workflows.md
+name: Deploy
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  id-token: write       # AWS access via GitHub OIDC (no AWS secrets in the repo)
+  contents: write       # the expand step commits regenerated terraform/ to the branch
+  pull-requests: write  # plan + review comment on PRs
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  javabin:
+    uses: javaBin/platform/.github/workflows/javabin.yml@main
+    with:
+      java_version: "21"
+      # The tests need a real PostgreSQL, the same as docker/postgres sets up.
+      test_postgres_image: postgres:17
+      test_postgres_db: moresleepunit
+      test_postgres_user: localdevuser
+      test_postgres_password: localdevuser   # throwaway CI database, not a secret

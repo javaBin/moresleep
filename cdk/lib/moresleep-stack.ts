@@ -43,7 +43,7 @@ export class MoresleepStack extends cdk.Stack {
     console.log('Current working directory:', process.cwd());
 
     taskDefinition.addContainer('web', {
-      image: ecs.ContainerImage.fromAsset('../', { file: 'Dockerfile' }), 
+      image: ecs.ContainerImage.fromAsset('../', { file: 'Dockerfile.cdk' }), // SOPS image; ./Dockerfile is the platform image 
 
       portMappings: [{ containerPort: port }],
       logging: new ecs.AwsLogDriver({ streamPrefix: 'web' }),
