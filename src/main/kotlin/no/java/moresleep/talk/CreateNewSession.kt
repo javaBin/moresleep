@@ -2,6 +2,9 @@ package no.java.moresleep.talk
 
 import no.java.moresleep.*
 import no.java.moresleep.conference.ConferenceRepo
+import no.java.moresleep.hooks.HookMessage
+import no.java.moresleep.hooks.HookMessageType
+import no.java.moresleep.hooks.HookReporter
 import org.jsonbuddy.JsonObject
 import org.jsonbuddy.pojo.JsonGenerator
 import java.time.LocalDateTime
@@ -72,7 +75,12 @@ class CreateNewSession(val data: Map<String,DataValue>?=null,val postedBy:String
             payload = if (Setup.readBoolValue(SetupValue.STORE_UPDATES)) dataObject else null
         )
 
-        return ReadOneTalk().execute(systemUser, mapOf(Pair("id",sessionId)))
+        val talkDetail = ReadOneTalk().execute(systemUser, mapOf(Pair("id", sessionId)))
+        HookReporter.reportHook(HookMessage(
+            type = HookMessageType.ADDED_TALK,
+            reference = talkDetail.id,
+        ))
+        return talkDetail
 
 
     }
