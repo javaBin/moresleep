@@ -5,6 +5,12 @@ Contains both a public API that can be consumed by anyone, and a private API use
 
 Aiming to replace [Sleepingpill](https://github.com/javaBin/sleepingPillCore)
 
+# Deployment
+
+moresleep is moving onto the javaBin platform: `app.yaml` describes the infrastructure and
+`.github/workflows/deploy.yml` builds, tests and deploys on merge to `master`.
+See [docs/platform.md](docs/platform.md).
+
 # Setup
 
 ## Database
