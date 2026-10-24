@@ -1,41 +1,31 @@
-# Build: docker build -t moresleep-app:latest .
-# Run: docker run  --name moresleep-container -p 5000:5000 moresleep-app:latest
-# Check localhost:5000 and you should get a homepage
-# Stage 1: Build the application
+# Platform image: built and pushed to ECR by the javaBin platform pipeline
+# (.github/workflows/deploy.yml), run on ECS Fargate.
+#
+# Configuration comes from environment variables that ECS injects (app.yaml
+# `environment:` and `resources.secrets`), so the image holds no secrets and
+# needs no SOPS or AWS CLI. The container runs as uid 1000 with a read-only
+# root filesystem and a writable /tmp.
+#
+# Local run:
+#   docker build -t moresleep .
+#   docker run --rm -p 8082:8082 -e DBHOST=host.docker.internal moresleep
+
+# Stage 1: build the jar (tests run in the pipeline's build-jvm job before this)
 FROM maven:3.9.11-eclipse-temurin-21 AS build
 WORKDIR /app
 COPY pom.xml .
+RUN mvn --batch-mode --quiet dependency:go-offline
 COPY src ./src
-RUN mvn clean package -Dmaven.test.skip=true
+RUN mvn --batch-mode package -Dmaven.test.skip=true
 
-# Stage 2: Create the final runtime image
-FROM eclipse-temurin:21-jre-jammy AS final
-
-# Install SOPS
-RUN curl -L -o /usr/local/bin/sops https://github.com/getsops/sops/releases/download/v3.10.2/sops-v3.10.2.linux.amd64 && \
-    chmod +x /usr/local/bin/sops
-
-    # Install unzip and curl
-RUN apt-get update && \
-    apt-get install -y curl unzip && \
-    rm -rf /var/lib/apt/lists/*
-
-    # Install AWS CLI v2
-RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip" && \
-    unzip /tmp/awscliv2.zip -d /tmp && \
-    /tmp/aws/install && \
-    rm -rf /tmp/aws /tmp/awscliv2.zip
-
-# Set environment variables
-ENV DO_FLYWAY_MIGRATION=false
+# Stage 2: runtime
+FROM eclipse-temurin:21-jre-jammy
+# Production settings (port 5000, DO_FLYWAY_MIGRATION=false, ...) come from
+# app.yaml. The image keeps the code defaults, so it also works as the local
+# dev image (port 8082, migrations on), like the previous :edge image.
 ENV RUN_FROM_JAR=true
-
 WORKDIR /app
 COPY --from=build /app/target/moresleep-0.0.1-jar-with-dependencies.jar app.jar
-COPY ./conf/.enc.env /app/.enc.env
-
-# Remove AWS profile from SOPS config to use container's AWS credentials
-RUN sed -i 's/sops_kms__list_0__map_aws_profile=javabin/sops_kms__list_0__map_aws_profile=/' /app/.enc.env
-
-EXPOSE 5000
-ENTRYPOINT ["sops", "exec-env", ".enc.env", "java -jar app.jar"]
+USER 1000
+EXPOSE 5000 8082
+ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75", "-jar", "app.jar"]
